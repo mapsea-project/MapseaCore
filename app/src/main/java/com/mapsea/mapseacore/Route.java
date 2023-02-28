@@ -13,12 +13,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+/** (맵시 구현)배의 항로에 관련된 정보와 기능을 구현한 클래스
+ *
+ */
 public class Route {
-    //맵시 구현
-    //배의 항로에 관련된 정보와 기능을 구현한 클래스
 
-    private ArrayList<Point2D> _wayPoints;//웨이포인트 위경도 지점
-    private ArrayList<WayInterval> _intervals;//웨이포인트 간 운항 속성 클래스
+    private final ArrayList<Point2D> _wayPoints;//웨이포인트 위경도 지점
+    private final ArrayList<WayInterval> _intervals;//웨이포인트 간 운항 속성 클래스
     private double _avgSpd = 0.0;//평균 속력 knot단위
     private double _timeToGo = 0.0;//예상 운항 시간 Hour 단위
     private double _ttlDis = 0.0;//총 거리 Km단위
@@ -27,6 +28,7 @@ public class Route {
 
     public String _name;//항로 이름
 
+    // 생성자
     public Route()
     {
         _wayPoints = new ArrayList<Point2D>();
@@ -75,7 +77,11 @@ public class Route {
         }
     }
 
-    //특정 위치에 웨이포인트를 추가
+    /** 특정 위치에 웨이포인트를 추가
+     * @param wayPoint
+     * @param pos 0부터 시작
+     * @return
+     */
     public boolean Add(Point2D wayPoint, int pos)
     {
         if(pos > _wayPoints.size() + 1)

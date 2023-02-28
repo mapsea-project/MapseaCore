@@ -1,6 +1,9 @@
 package com.mapsea.mapseacore;
 
-
+/** 좌표 데이터(double)<br>
+ * x: longitude
+ * y: latitude
+ * */
 public class Point2D {
     public double X;
     public double Y;

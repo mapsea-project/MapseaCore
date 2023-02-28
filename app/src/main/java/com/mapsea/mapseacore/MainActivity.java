@@ -38,19 +38,39 @@ import java.util.function.Consumer;
 
 
 public class MainActivity extends AppCompatActivity {
+    /** 자선 정보 */
 
-    private Vessel _myVessel;//자선 정보
-    private VesselHash _vesselHash;//선박 해시 테이블
-    private double _sLongitude = 126.5000;//126.5833;//화면 중심 경도
-    private double _sLatitude = 36.0833;//37.3166;//화면 중심 위도
-    private int _sScale = 10000;//화면 전자 해도 축척
-    private double _sRotation = 0;//화면 전자 해도 회전각
-    private double _safecon = 10;//전자 해도 Safety Contour
-    private int _language = 0;//전자 해도 언어 설정
-    private double _geoPerPixel = 1.0;//1 픽셀당 위경도 차이, 이미지 서버에서 받아옴
+    private Vessel _myVessel;
+
+    /** 선박 해시 테이블 */
+    private VesselHash _vesselHash;
+
+    /** 화면 중심 경도 126.5000 */
+    private double _sLongitude = 126.5000;//126.5833;
+
+    /** 화면 중심 위도 36.0833 */
+    private double _sLatitude = 36.0833;//37.3166;
+
+    /** 화면 전자 해도 축척 */
+    private int _sScale = 10000;
+
+    /** 화면 전자 해도 회전각 */
+    private double _sRotation = 0;
+
+    /** 전자 해도 Safety Contour */
+    private double _safecon = 10;
+
+    /** (int)전자 해도 언어 설정 */
+    private int _language = 0;
+
+    /** 1픽셀 당 위경도 차이, 이미지 서버에서 받아옴 */
+    private double _geoPerPixel = 1.0;
+
     private double _screenWidth = 1920;
     private double _screenHeight = 1080;
-    private double _minimapGeoOffset = 10000;//미니맵 배율, 축척 단위와 같음
+
+    /** 미니맵 배율, 축척 단위와 같음 */
+    private double _minimapGeoOffset = 10000;
 
 
     private double _tmpLon;
@@ -73,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
         _vesselHash = new VesselHash();
     }
 
-    //두개의 경도가 동경 180, 서경 180의 자오선을 지나는 경로인지 판단
+    /** 두개의 경도가 동경 180, 서경 180의 자오선을 지나는 경로인지 판단
+     * @param lon1 경도1
+     * @param lon2 경도2
+     * @return true: 지나는 경로, false: 지나지 않는 경로
+     * */
     public static boolean IsCrossDateMeridian(double lon1, double lon2)
     {
         //double dis1 = GeoDistance(0.0, lon1, 0.0, lon2);
@@ -83,7 +107,12 @@ public class MainActivity extends AppCompatActivity {
         return Math.abs(lon2 - lon1) > 180;
     }
 
-    //선형순환계에서 정상 동작하도록 stdLon의 경도를 기준으로 proxyLon을 일반화한 포인트 반환
+    /** 선형순환계에서 정상 동작하도록 stdLon의 경도를 기준으로 proxyLon을 일반화한 포인트 반환
+     * @param stdLon 기준 경도
+     * @param proxyLon 대상 경도
+     * @param proxyLat 대상 위도
+     * @return 대상 경도를 일반화한 Point2D
+     */
     public static Point2D GetProxyGeoPoint(double stdLon, double proxyLon, double proxyLat){
         if(MainActivity.IsCrossDateMeridian(stdLon, proxyLon))
         {
@@ -102,6 +131,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 두개의 경도가 동경 180, 서경 180의 자오선을 지나는 경로인지 판단
+     * @param lat 위도
+     * @param lon 경도
+     * @return true: 화면 안, false: 화면 밖
+     */
     public boolean IsInScreen(double lat, double lon) {
         //해당 위치(위경도)가 현재 스크린 안인지 판단
 
@@ -138,7 +173,11 @@ public class MainActivity extends AppCompatActivity {
                 && (lon < lonRight);
     }
 
-    //지정한 스크린 상의 좌표를 위경도로 변환
+    /** 지정한 스크린 상의 좌표를 위경도로 변환
+     * @param x 스크린 x좌표
+     * @param y 스크린 y좌표
+     * @return Point2D(위경도)
+     * */
     public Point2D ScreenToGeo(double x, double y)
     {
         double lat = _sLatitude + (y - _screenHeight / 2.0) * _geoPerPixel;
@@ -156,7 +195,11 @@ public class MainActivity extends AppCompatActivity {
         return new Point2D(lon, lat);
     }
 
-    //위경도 좌표를 스크린 좌표로 변환
+    /** 위경도 좌표를 스크린 좌표로 변환
+     * @param x 위경도 x좌표
+     * @param y 위경도 y좌표
+     * @return Point2D(스크린 좌표)
+     */
     public Point2D GeoToScreen(double x, double y) {
         double tmpX = x;
         if (IsCrossDateMeridian(_sLongitude - _screenWidth / 2.0 * _geoPerPixel,
@@ -187,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         return m / mPerPixel;
     }
+
 
     public boolean isInMinimap(double lat, double lon)
     {

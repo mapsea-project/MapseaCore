@@ -4,15 +4,38 @@ import static com.mapsea.mapseacore.MSFINAL.DDG;
 
 import java.time.Duration;
 
+/** 항로 간의 간격을 나타내는 클래스
+ * args:<br>
+ * _bearing: 항로가 뻗은 각도<br>
+ * _distance: 항로 간의 거리, 단위 km<br>
+ * _portXTD: 해당 항로의 왼쪽 한계 거리, 단위 m<br>
+ * _stbdXTD: 해당 항로의 오른쪽 한계 거리, 단위 m<br>
+ * _speed: 운항 속력, 단위 knot<br>
+ * _turnRadius: 선회율, 단위 degree per minute<br>
+ * _nvgPt1, _nvgPt2: 항로 상의 위치 판단을 위한 2개의 기준점<br>
+ * */
 public class WayInterval {
-    private double _bearing;//항로가 뻗은 각도
-    private double _distance;//항로 간의 거리, 단위 km
-    public int _portXTD;//해당 항로의 왼쪽 한계 거리, 단위 m
-    public int _stbdXTD;//해당 항로의 오른쪽 한계 거리, 단위 m
-    public double _speed;//운항 속력, 단위 knot
-    public double _turnRadius;//선회율, 단위 degree per minute
+    /** 항로가 뻗은 각도 */
+    private double _bearing;
 
+    /** 항로 간의 거리, 단위 km */
+    private double _distance;
+
+    /** 해당 항로의 왼쪽 한계 거리, 단위 m */
+    public int _portXTD;
+
+    /** 해당 항로의 오른쪽 한계 거리, 단위 m */
+    public int _stbdXTD;
+
+    /** 운항 속력, 단위 knot */
+    public double _speed;
+
+    /** 선회율, 단위 degree per minute */
+    public double _turnRadius;
+
+    /** 항로 상의 위치 판단을 위한 2개의 기준점 */
     public Point2D _nvgPt1;
+    /** 항로 상의 위치 판단을 위한 2개의 기준점 */
     public Point2D _nvgPt2;
 
     //생성자
@@ -77,7 +100,11 @@ public class WayInterval {
         }
     }
 
-    //XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 Km
+    /** XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 Km
+     *
+     * @param location 현재 위치
+     * @return XTD km 단위
+     */
     public double GetXTD(Point2D location)
     {
         if((_nvgPt1.X == _nvgPt2.X) && (_nvgPt1.Y == _nvgPt2.Y))

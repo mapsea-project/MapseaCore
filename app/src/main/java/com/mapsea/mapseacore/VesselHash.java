@@ -94,7 +94,10 @@ public class VesselHash {
         _innerIndex = 0;
     }
 
-    // 넘겨 받은 선박의 내부 인덱스를 반환 받음(외부 인덱스는 hash 값으로 바로 판단 가능)
+    /** 넘겨 받은 선박의 내부 인덱스를 반환 받음(외부 인덱스는 hash 값으로 바로 판단 가능)
+     * @param vessel 선박 데이터
+     * @return 선박 데이터의 내부 인덱스
+     */
     public int Seek(Vessel vessel)
     {
         for(int i = 0; i < _Table[vessel._hash].size(); i++)
@@ -107,7 +110,10 @@ public class VesselHash {
         return -1;
     }
 
-    // 넘겨 받은 mmsi의 선박 데이터를 반환함
+    /** 넘겨 받은 mmsi의 선박 데이터를 반환함
+        * @param mmsi 선박의 mmsi
+        * @return 선박 데이터
+     * */
     public Vessel Seek(String mmsi)
     {
         int hash = Hashing(mmsi);
