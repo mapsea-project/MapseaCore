@@ -130,7 +130,10 @@ public class Route {
         return true;
     }
 
-    //총 웨이포인트 개수
+    /** 총 웨이포인트 개수
+     *
+     * @return (int)way point count
+     */
     public int WayPointsLength()
     {
         return _wayPoints.size();

@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 
 public class MainActivity extends AppCompatActivity {
     /** 자선 정보 */
-
     private Vessel _myVessel;
 
     /** 선박 해시 테이블 */
