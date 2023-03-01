@@ -190,19 +190,19 @@ public class Route {
         return _intervals.get(pos);
     }
 
-    //평균 속력 반환
+    /** 평균 속력 반환(knot) */
     public double GetAverageSpeed()
     {
         return _avgSpd;
     }
 
-    //예상 운항 시간 반환
+    /** 예상 운항 시간 반환(h) */
     public double GetTimeToGo()
     {
         return _timeToGo;
     }
 
-    //총 거리 반환
+    /** 총 거리 반환(km) */
     public double GetTotalDistance()
     {
         return _ttlDis;

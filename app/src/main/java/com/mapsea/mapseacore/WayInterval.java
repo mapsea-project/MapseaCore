@@ -15,7 +15,7 @@ import java.time.Duration;
  * _nvgPt1, _nvgPt2: 항로 상의 위치 판단을 위한 2개의 기준점<br>
  * */
 public class WayInterval {
-    /** 항로가 뻗은 각도 */
+    /** 항로가 뻗은 각도 (rad) */
     private double _bearing;
 
     /** 항로 간의 거리, 단위 km */
@@ -102,7 +102,7 @@ public class WayInterval {
 
     /** XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 Km
      *
-     * @param location 현재 위치
+     * @param location 현재 위치(위도, 경도)
      * @return XTD km 단위
      */
     public double GetXTD(Point2D location)
@@ -164,19 +164,13 @@ public class WayInterval {
         return wi;
     }
 
-    //항로 각도 반환
-    public double GetBearing()
-    {
-        return _bearing;
-    }
+    /** 항로 각도 반환 */
+    public double GetBearing() { return _bearing; }
 
-    //항로 간 거리 반환
-    public double GetDistance()
-    {
-        return _distance;
-    }
+    /** 항로 간 거리 반환(Km) */
+    public double GetDistance() { return _distance; }
 
-    //예상 운항 시간 반환
+    /** 예상 운항 시간 반환 */
     public double GetTravelTimeAsHours() {
         return _distance / (_speed / MSFINAL.KMTONMRATE);
     }
