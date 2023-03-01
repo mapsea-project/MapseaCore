@@ -271,19 +271,28 @@ public class MainActivity extends AppCompatActivity {
 
     //두 위경도 지점 간의 거리를 킬로미터로 변환
     public static double GeoDistanceKmByHaversine(double lat1, double lon1, double lat2, double lon2) {
-        double deltaLatitude = Math.abs(lat1 - lat2) * MSFINAL.TORADIAN;
-        double deltaLongitude = 0.0;
-        if (IsCrossDateMeridian(lon1, lon2)) {
-            deltaLongitude = (360 - Math.abs(lon1 - lon2)) * MSFINAL.TORADIAN;
-        } else {
-            deltaLongitude = Math.abs(lon1 - lon2) * MSFINAL.TORADIAN;
-        }
-        double sinDeltaLat = Math.sin(deltaLatitude / 2);
-        double sinDeltaLng = Math.sin(deltaLongitude / 2);
-        double a = sinDeltaLat * sinDeltaLat + Math.cos(lat1 * MSFINAL.TORADIAN) * Math.cos(lat2 * MSFINAL.TORADIAN) * sinDeltaLng * sinDeltaLng;
-
-        double distance = 2 * MSFINAL.RADIUS * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
+//        double deltaLatitude = Math.abs(lat1 - lat2) * MSFINAL.TORADIAN;
+//        double deltaLongitude = 0.0;
+//        if (IsCrossDateMeridian(lon1, lon2)) {
+//            deltaLongitude = (360 - Math.abs(lon1 - lon2)) * MSFINAL.TORADIAN;
+//        } else {
+//            deltaLongitude = Math.abs(lon1 - lon2) * MSFINAL.TORADIAN;
+//        }
+//        double sinDeltaLat = Math.sin(deltaLatitude / 2);
+//        double sinDeltaLng = Math.sin(deltaLongitude / 2);
+//        double a = sinDeltaLat * sinDeltaLat + Math.cos(lat1 * MSFINAL.TORADIAN) * Math.cos(lat2 * MSFINAL.TORADIAN) * sinDeltaLng * sinDeltaLng;
+//
+//        double distance = 2 * MSFINAL.RADIUS * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//
+//        return distance;
+        double earthRadius = 6371; // Radius of the earth in km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = earthRadius * c; // Distance in km
         return distance;
     }
 
