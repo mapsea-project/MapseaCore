@@ -10,8 +10,8 @@ public class Point2D {
 
     /**
      * Creates a 2D point with the given longitude and latitude coordinates.
-     * @param x the longitude coordinate
-     * @param y the latitude coordinate
+     * @param x the (경도)longitude coordinate
+     * @param y the (위도)latitude coordinate
      */
     public Point2D(double x, double y)
 

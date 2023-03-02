@@ -44,11 +44,11 @@ public class MainActivity extends AppCompatActivity {
     /** 선박 해시 테이블 */
     private VesselHash _vesselHash;
 
-    /** 화면 중심 경도 126.5000 */
-    private double _sLongitude = 126.5000;//126.5833;
-
     /** 화면 중심 위도 36.0833 */
     private double _sLatitude = 36.0833;//37.3166;
+
+    /** 화면 중심 경도 126.5000 */
+    private double _sLongitude = 126.5000;//126.5833;
 
     /** 화면 전자 해도 축척 */
     private int _sScale = 10000;
@@ -291,9 +291,8 @@ public class MainActivity extends AppCompatActivity {
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = earthRadius * c; // Distance in km
-        return distance;
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // great circle distance in radians
+        return earthRadius * c;
     }
 
     //두 위경도 지점 간의 각도를 반환

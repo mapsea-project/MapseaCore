@@ -2,8 +2,6 @@ package com.mapsea.mapseacore;
 
 import static com.mapsea.mapseacore.MSFINAL.DDG;
 
-import java.time.Duration;
-
 /** 항로 간의 간격을 나타내는 클래스
  * args:<br>
  * _bearing: 항로가 뻗은 각도<br>
@@ -22,10 +20,10 @@ public class WayInterval {
     private double _distance;
 
     /** 해당 항로의 왼쪽 한계 거리, 단위 m */
-    public int _portXTD;
+    public int _portsideXTD;
 
     /** 해당 항로의 오른쪽 한계 거리, 단위 m */
-    public int _stbdXTD;
+    public int _starboardXTD;
 
     /** 운항 속력, 단위 knot */
     public double _speed;
@@ -41,8 +39,8 @@ public class WayInterval {
     //생성자
     public WayInterval(double lat1, double lon1, double lat2, double lon2)
     {
-        _portXTD = 50;
-        _stbdXTD = 50;
+        _portsideXTD = 50;
+        _starboardXTD = 50;
         _speed = 20.0;
         _turnRadius = 1.0;
 
@@ -59,7 +57,7 @@ public class WayInterval {
         CalculateNVGPT(lat1, lon1, lat2, lon2);
     }
 
-    //항로 상의 위치 판단을 위한 2개의 기준점 계산
+    // 항로 상의 위치 판단을 위한 2개의 기준점 계산
     private void CalculateNVGPT(double lat1, double lon1, double lat2, double lon2)
     {
         if(lon1 == lon2)
@@ -107,16 +105,13 @@ public class WayInterval {
      */
     public double GetXTD(Point2D location)
     {
-        if((_nvgPt1.X == _nvgPt2.X) && (_nvgPt1.Y == _nvgPt2.Y))
-        {
+        if((_nvgPt1.X == _nvgPt2.X) && (_nvgPt1.Y == _nvgPt2.Y)){
             return 0;
         }
-        else if((_nvgPt1.X == _nvgPt2.X))
-        {
+        else if((_nvgPt1.X == _nvgPt2.X)){
             return MainActivity.GeoDistanceKmByHaversine(location.Y, location.X, location.Y, location.X - _nvgPt1.X);
         }
-        else if((_nvgPt1.Y == _nvgPt2.Y))
-        {
+        else if((_nvgPt1.Y == _nvgPt2.Y)){
             return MainActivity.GeoDistanceKmByHaversine(location.Y, location.X, location.Y - _nvgPt1.Y, location.X);
         }
 
@@ -156,8 +151,8 @@ public class WayInterval {
         WayInterval wi = new WayInterval(lat1, lon1, lat2, lon2);
         //_bearing = wi.GetBearing();
         //_distance = wi.GetDistance();
-        wi._portXTD = _portXTD;
-        wi._stbdXTD = _stbdXTD;
+        wi._portsideXTD = _portsideXTD;
+        wi._starboardXTD = _starboardXTD;
         wi._speed = _speed;
         wi._turnRadius = _turnRadius;
 

@@ -1,7 +1,115 @@
 package com.mapsea.mapseacore
 
-
+import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.random.Random
+
+// longitude: x, latitude: y
+// coordinates of cities in Korea
+
+fun main() {
+    val coorKorea = listOf(
+        Point2D(126.977966, 37.566536), // Seoul
+        Point2D(129.075638, 35.179554), // Busan
+        Point2D(128.87, 37.75), // Gangneung
+        Point2D(126.70, 37.45), // Incheon
+        Point2D(129.31, 35.53), // Ulsan
+        Point2D(126.85, 35.15), // Gwangju
+        Point2D(128.60, 35.87), // Daegu
+    )
+
+    val coorWorld = listOf(
+        Point2D(121.46, 31.23), // Shanghai
+        Point2D(139.76, 35.70), // Tokyo
+        Point2D(-122.26, 38.22), // San Francisco
+        Point2D(151.60, -32.95), // Sydney
+        Point2D(179.58, 33.83), // 태평양 자오선 왼쪽
+        Point2D(-178.01, 29.21),
+    )
+    val route = Route()
+
+//    addRandomWayPoint(route, 5)
+    route.Add(coorWorld[0]) // Shanghai
+    route.Add(coorWorld[3]) // Sydney
+    var testPoint = coorWorld[2] // San Francisco
+//    route.Add(Point2D(179.26, 29.21)) // 태평양 중심
+//    route.Add(Point2D(-178.01, 29.21))
+    println("WayPoint Counts: ${route.WayPointsLength()}") // 웨이포인트 개수
+
+    // 웨이포인트 삭제
+//    val delPos = 1 // 삭제할 포인트 인덱스 0 ~ WayPointsLength()-1
+//    println("Delete WayPoint $delPos")
+//    route.Delete(delPos)
+//    println("WayPoint remain len: ${route.WayPointsLength()}")
+
+    // 선박 평균 속력(knot), 예상 운항 시각(h), 총 거리(km) 반환
+    val speed: Double = route.GetAverageSpeed()
+    val dist: Double = route.GetTotalDistance()
+    val time: Double = route.GetTimeToGo() // 예상 운항 시간(h)
+    val (hours, minutes, seconds) = getTimeUnits(time)
+    // timeH: integer part of time
+
+    println("Average Speed: ${sD(speed)} knots")
+    println("Total Distance: ${sD(dist)} km")
+    println("Total Time: ${"%.5f".format(time)} h, $hours hours, $minutes minutes, $seconds seconds")
+
+    println("------------------ WayPoints ------------------")
+    // 웨이포인트 조회 반환
+    for (i in 0 until route.WayPointsLength()) {
+        val latitude = route.GetWayPoint(i).Y
+        val longitude = route.GetWayPoint(i).X
+        println("WayPoint $i : latitude:longitude = $latitude : $longitude")
+    }
+
+    println("------------------ WayIntervals ------------------")
+    // 웨이포인트 간 속성 조회 반환. 인덱스는 웨이포인트 - 1. output format .4f
+    for (i in 0 until route.WayPointsLength() - 1) {
+        val wayInterval = route.GetWayInterval(i)
+        val distance = wayInterval.GetDistance()
+        val bearing = wayInterval.GetBearing()
+        val expectedTime = wayInterval.GetTravelTimeAsHours()
+        val expectedTimeUnits = getTimeUnits(expectedTime)
+        println("WayInterval $i : Distance = ${sD(distance)} km" +
+                ", Bearing = [${sD(bearing)} rad, ${sD(Math.toDegrees(bearing))} deg], "+
+        "Expected Time to Go = ${sD(expectedTime)} h, " +
+                "${"%02d".format(expectedTimeUnits[0])}:" +
+                "${"%02d".format(expectedTimeUnits[1])}:" +
+                "%02d".format(expectedTimeUnits[2])
+        )
+    }
+
+    println("------------------ XTD ------------------")
+    println("Test Point: ${testPoint.X}, ${testPoint.Y}")
+    // 경로 너비 조회
+    for (i in 0 until route.WayPointsLength() - 1) {
+        val wayInterval = route.GetWayInterval(i)
+        println("portXTD(left) ${wayInterval._portsideXTD} m, starboardXTD(right) ${wayInterval._starboardXTD} m")
+        println("WayInterval $i : XTD = ${sD(wayInterval.GetXTD(testPoint))} m")
+    }
+
+    getSideOfWayInterval(route.GetWayInterval(0), testPoint)
+
+//    val currentVessel = Vessel()
+//    currentVessel._pos = PositionData()
+//    currentVessel._pos._lon = -1.0
+//    currentVessel._pos._lat = 0.0
+//    currentVessel._pos._stp = LocalDateTime.now()
+//    currentVessel._pos._status = 1
+//    currentVessel._prevPos = PositionData()
+//    currentVessel._prevPos._lon = -1.0
+//    currentVessel._prevPos._lat = 0.0
+//    currentVessel._prevPos._stp = currentVessel._pos._stp.plusSeconds(30)
+
+}
+
+/** Double format .5f */
+fun sD(d: Double, num: Int = 5): String {
+    return "%.${num}f".format(d)
+}
+/** Int format %.02d */
+fun sI(i: Int, num: Int = 2): String {
+    return "%.0${num}d".format(i)
+}
 
 fun addRandomWayPoint(route: Route, num: Int = 2, seed: Int = 42): Route {
     val routeRand = Random(seed)
@@ -11,50 +119,61 @@ fun addRandomWayPoint(route: Route, num: Int = 2, seed: Int = 42): Route {
     }
 
     for (i in 1..num) {
-        // longtitude range: -180 ~ 180, latitude range: -90 ~ 90
+        // x(longitude): -180 ~ 180, y(latitude): -90 ~ 90
         route.Add(Point2D(
-            routeRand.nextDouble(-180.0, 180.0), // 입력 값은 rad? or deg? ##
+            routeRand.nextDouble(-180.0, 180.0),
             routeRand.nextDouble(-90.0, 90.0)))
     }
     return route
 }
 
-fun main() {
-    val route = Route()
+/**
+ * @param hours: Double
+ * @return List<Number>: [hours, minutes, seconds, days, month]
+ */
+fun getTimeUnits(hours: Double): List<Number> {
+    val hourInt = hours.toInt()
+    val minutes = ((hours - hours.toInt())*60)
+    val minutesInt = minutes.toInt()
+    val seconds = ((minutes - minutes.toInt())*60)
+    val secondsInt = seconds.toInt()
+    val daysInt = (hours/24).toInt()
+    val monthsInt = (daysInt/30).toInt()
+    return listOf(hourInt, minutesInt, secondsInt, daysInt, monthsInt)
+}
 
-    addRandomWayPoint(route, 5)
+fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D) {
+    val portXTD = wayInterval._portsideXTD
+    val starboardXTD = wayInterval._starboardXTD
+    val xtd = wayInterval.GetXTD(testPoint)
 
-    println("WayPoint len: ${route.WayPointsLength()}")
+    val start = wayInterval._nvgPt1
+    val end = wayInterval._nvgPt2
+    val bearing = wayInterval.GetBearing()
 
-    // 웨이포인트 삭제
-//    val delPos = 1
-//    println("Delete WayPoint $delPos")
-//    route.Delete(delPos)
-//    println("WayPoint remain len: ${route.WayPointsLength()}")
+    val dx = testPoint.X - start.X
+    val dy = testPoint.Y - start.Y
+    val angle = atan2(dy, dx)
 
-    // 선박 평균 속력(knot), 예상 운항 시각(h), 총 거리(km) 반환
-    val speed:String = sD(route.GetAverageSpeed())
-    val dist:String = sD(route.GetTotalDistance())
-    println("Average Speed: $speed knots")
-    println("Total Distance: $dist km")
-    println("Total Time: ${sD(route.GetTimeToGo())} h") // 정확한 계산법 찾아야함 ##
-    println((dist.toDouble()*0.539957)/speed.toDouble()*1/1.15078)
+    val angleDiff = normalizeAngle(angle - bearing)
 
-    // 웨이포인트 조회 반환
-    for (i in 0 until route.WayPointsLength()) {
-        println("WayPoint $i : X = ${sD(route.GetWayPoint(i).X)}" +
-                ", Y = ${sD(route.GetWayPoint(i).Y)}")
-    }
+    println("start: ${sD(start.X)}, ${sD(start.Y)}, end: ${sD(end.X)}, ${sD(end.Y)}")
+    println("bearing: $bearing, angle: $angle, angleDiff: $angleDiff")
 
-
-    // 웨이포인트 간 속성 조회 반환. 인덱스는 웨이포인트 - 1. output format .4f
-    for (i in 0 until route.WayPointsLength() - 1) {
-        println("WayInterval $i : Distance = ${sD(route.GetWayInterval(i).GetDistance())}" +
-                ", Bearing = ${sD(route.GetWayInterval(i).GetBearing())}")
+    if (angleDiff < PI) {
+        println("port side")
+    } else {
+        println("starboard side")
     }
 }
 
-/** Double format .4f */
-fun sD(d: Double): String {
-    return "%.4f".format(d)
+fun normalizeAngle(angle: Double): Double {
+    var result = angle
+    while (result < 0) {
+        result += 2 * PI
+    }
+    while (result > 2 * PI) {
+        result -= 2 * PI
+    }
+    return result
 }

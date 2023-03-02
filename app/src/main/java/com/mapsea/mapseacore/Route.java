@@ -179,8 +179,8 @@ public class Route {
     }
 
     //웨이포인트 조회 반환
-    public Point2D GetWayPoint(int pos)
-    {
+    public Point2D GetWayPoint(int pos){
+
         return _wayPoints.get(pos);
     }
 
