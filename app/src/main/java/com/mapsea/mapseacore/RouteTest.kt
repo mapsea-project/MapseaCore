@@ -160,8 +160,6 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D) {
     println("start: ${sD(start.X)}, ${sD(start.Y)}, end: ${sD(end.X)}, ${sD(end.Y)}")
     println("bearing: $bearing, angle: $angle, angleDiff: $angleDiff")
 
-
-
     when {
         angleDiff < 0 && (wayInterval._starboardXTD < wayInterval.GetXTD(testPoint))
         ->  println("starboard side && out of XTD")

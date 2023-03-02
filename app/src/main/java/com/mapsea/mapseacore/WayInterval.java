@@ -116,7 +116,7 @@ public class WayInterval {
         }
 
         // Calculate the great circle distance between _nvgPt1 and _nvgPt2
-        double d12 = MainActivity.GeoDistanceKm2(_nvgPt1, _nvgPt2);
+        double d12 = MainActivity.GeoDistanceGreateCircle(_nvgPt1, _nvgPt2);
 
         // Calculate the azimuth angle from _nvgPt1 to _nvgPt2
         double theta12 = Math.atan2(
@@ -126,7 +126,7 @@ public class WayInterval {
         );
 
         // Calculate the great circle distance and azimuth angle from _nvgPt1 to location
-        double d13 = MainActivity.GeoDistanceKm2(_nvgPt1, location);
+        double d13 = MainActivity.GeoDistanceGreateCircle(_nvgPt1, location);
         double theta13 = Math.atan2(
                 Math.sin(Math.toRadians(location.getX() - _nvgPt1.getX())) * Math.cos(Math.toRadians(location.getY())),
                 Math.cos(Math.toRadians(_nvgPt1.getY())) * Math.sin(Math.toRadians(location.getY())) -
