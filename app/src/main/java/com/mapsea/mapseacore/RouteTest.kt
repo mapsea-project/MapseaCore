@@ -3,18 +3,26 @@ package com.mapsea.mapseacore
 
 import kotlin.random.Random
 
-
-fun main() {
-    val route = Route()
-    val seed = 42
+fun addRandomWayPoint(route: Route, num: Int = 2, seed: Int = 42): Route {
     val routeRand = Random(seed)
 
-    for (i in 0..1) {
+    if (num < 2) {
+        throw IllegalArgumentException("WayPoint num must be greater than 2")
+    }
+
+    for (i in 1..num) {
         // longtitude range: -180 ~ 180, latitude range: -90 ~ 90
         route.Add(Point2D(
             routeRand.nextDouble(-180.0, 180.0), // 입력 값은 rad? or deg? ##
             routeRand.nextDouble(-90.0, 90.0)))
     }
+    return route
+}
+
+fun main() {
+    val route = Route()
+
+    addRandomWayPoint(route, 5)
 
     println("WayPoint len: ${route.WayPointsLength()}")
 
