@@ -1,17 +1,8 @@
 package com.mapsea.mapseacore;
 
-import android.annotation.SuppressLint;
-import android.graphics.MaskFilter;
-import android.location.Location;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.List;
 
 /** (맵시 구현)배의 항로에 관련된 정보와 기능을 구현한 클래스
  *

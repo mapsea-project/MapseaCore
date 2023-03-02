@@ -1,6 +1,7 @@
 package com.mapsea.mapseacore;
 
 import static com.mapsea.mapseacore.MSFINAL.DDG;
+import static java.lang.Math.abs;
 
 /** 항로 간의 간격을 나타내는 클래스
  * args:<br>
@@ -103,46 +104,57 @@ public class WayInterval {
      * @param location 현재 위치(위도, 경도)
      * @return XTD km 단위
      */
-    public double GetXTD(Point2D location)
-    {
-        if((_nvgPt1.X == _nvgPt2.X) && (_nvgPt1.Y == _nvgPt2.Y)){
-            return 0;
-        }
-        else if((_nvgPt1.X == _nvgPt2.X)){
-            return MainActivity.GeoDistanceKmByHaversine(location.Y, location.X, location.Y, location.X - _nvgPt1.X);
-        }
-        else if((_nvgPt1.Y == _nvgPt2.Y)){
-            return MainActivity.GeoDistanceKmByHaversine(location.Y, location.X, location.Y - _nvgPt1.Y, location.X);
-        }
-
-        double tangent1 = (_nvgPt2.Y - _nvgPt1.Y) / (_nvgPt2.X - _nvgPt1.X);
-        double yInter1 = _nvgPt1.Y - tangent1 * _nvgPt1.X;
-
-        double tangent2 = -(_nvgPt2.X - _nvgPt1.X) / (_nvgPt2.Y - _nvgPt1.Y);
-        double yInter2 = location.Y - tangent2 * location.X;
-
-        Point2D FoP = new Point2D((yInter2 - yInter1) / (tangent1 - tangent2),
-                tangent1 * (yInter2 - yInter1) / (tangent1 - tangent2) + yInter1);
-
-        return MainActivity.GeoDistanceKmByHaversine(location.Y, location.X, FoP.Y, FoP.X);
-        /*
-        if(_nvgPt1.X == _nvgPt2.X)
-        {
-
-        }
-        if(_nvgPt1.Y == _nvgPt2.Y)
-        {
-
+    // Calculates the length of a perpendicular line from a point to a line connecting two other points
+    public double GetXTD(Point2D location) {
+        // Check if the longitude difference between _nvgPt1 and _nvgPt2 exceeds 180 degrees
+        if (abs(_nvgPt2.getX() - _nvgPt1.getX()) > 180) {
+            if (_nvgPt2.getX() > _nvgPt1.getX()) {
+                _nvgPt1.X -= 360;
+            } else {
+                _nvgPt2.X += 360;
+            }
         }
 
-        double fA = _nvgPt2.Y - _nvgPt1.Y;
-        double fB = _nvgPt1.X - _nvgPt2.X;
-        double fC = (_nvgPt2.X - _nvgPt1.X) * _nvgPt1.Y - (_nvgPt2.Y - _nvgPt1.Y) * _nvgPt1.X;
-        double fDis = (fA * location.X + fB * location.Y + fC) / Math.sqrt(fA * fA + fB * fB);
+        // Calculate the great circle distance between _nvgPt1 and _nvgPt2
+        double d12 = MainActivity.GeoDistanceKm2(_nvgPt1, _nvgPt2);
 
-        return fDis;//최종 미터로 변환 필요
-        */
+        // Calculate the azimuth angle from _nvgPt1 to _nvgPt2
+        double theta12 = Math.atan2(
+                Math.sin(Math.toRadians(_nvgPt2.getX() - _nvgPt1.getX())) * Math.cos(Math.toRadians(_nvgPt2.getY())),
+                Math.cos(Math.toRadians(_nvgPt1.getY())) * Math.sin(Math.toRadians(_nvgPt2.getY())) -
+                        Math.sin(Math.toRadians(_nvgPt1.getY())) * Math.cos(Math.toRadians(_nvgPt2.getY())) * Math.cos(Math.toRadians(_nvgPt2.getX() - _nvgPt1.getX()))
+        );
+
+        // Calculate the great circle distance and azimuth angle from _nvgPt1 to location
+        double d13 = MainActivity.GeoDistanceKm2(_nvgPt1, location);
+        double theta13 = Math.atan2(
+                Math.sin(Math.toRadians(location.getX() - _nvgPt1.getX())) * Math.cos(Math.toRadians(location.getY())),
+                Math.cos(Math.toRadians(_nvgPt1.getY())) * Math.sin(Math.toRadians(location.getY())) -
+                        Math.sin(Math.toRadians(_nvgPt1.getY())) * Math.cos(Math.toRadians(location.getY())) * Math.cos(Math.toRadians(location.getX() - _nvgPt1.getX()))
+        );
+
+        // Calculate the perpendicular distance from location to the line connecting _nvgPt1 and _nvgPt2
+        return abs(Math.asin(Math.sin(d13/6371) * Math.sin(theta13 - theta12)) * 6371);
     }
+
+    public double GetPortsideXTD() { return _portsideXTD; }
+    public double GetStarboardXTD() { return _starboardXTD; }
+    public double GetSpeed() { return _speed; }
+    public double GetTurnRadius() { return _turnRadius; }
+
+    public void SetPortsideXTD(int xtd) { _portsideXTD = xtd; }
+    public void SetStarboardXTD(int xtd) { _starboardXTD = xtd; }
+    public void SetSpeed(double speed) { _speed = speed; }
+    public void SetTurnRadius(double radius) { _turnRadius = radius; }
+
+    public Point2D GetNVGPT1() { return _nvgPt1; }
+    public Point2D GetNVGPT2() { return _nvgPt2; }
+
+    public void SetNVGPT1(Point2D pt) { _nvgPt1 = pt; }
+    public void SetNVGPT2(Point2D pt) { _nvgPt2 = pt; }
+
+
+
 
     //클론 생성자
     //현재 WI의 속성을 복사하고 지정한 새로운 위치의 WI를 생성하여 반환

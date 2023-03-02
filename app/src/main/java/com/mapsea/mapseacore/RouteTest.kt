@@ -1,7 +1,6 @@
 package com.mapsea.mapseacore
 
 import kotlin.math.PI
-import kotlin.math.atan2
 import kotlin.random.Random
 
 // longitude: x, latitude: y
@@ -19,7 +18,7 @@ fun main() {
     )
 
     val coorWorld = listOf(
-        Point2D(121.46, 31.23), // Shanghai
+        Point2D(121.47, 31.23), // Shanghai
         Point2D(139.76, 35.70), // Tokyo
         Point2D(-122.26, 38.22), // San Francisco
         Point2D(151.60, -32.95), // Sydney
@@ -29,11 +28,10 @@ fun main() {
     val route = Route()
 
 //    addRandomWayPoint(route, 5)
-    route.Add(coorWorld[0]) // Shanghai
-    route.Add(coorWorld[3]) // Sydney
-    var testPoint = coorWorld[2] // San Francisco
-//    route.Add(Point2D(179.26, 29.21)) // 태평양 중심
-//    route.Add(Point2D(-178.01, 29.21))
+    route.Add(coorWorld[1]) // Tokyo
+    route.Add(coorWorld[2]) // San Francisco
+//    val testPoint = coorKorea[0] // Seoul
+    val testPoint = Point2D(coorWorld[1].x +5, coorWorld[1].y +5)
     println("WayPoint Counts: ${route.WayPointsLength()}") // 웨이포인트 개수
 
     // 웨이포인트 삭제
@@ -58,7 +56,7 @@ fun main() {
     for (i in 0 until route.WayPointsLength()) {
         val latitude = route.GetWayPoint(i).Y
         val longitude = route.GetWayPoint(i).X
-        println("WayPoint $i : latitude:longitude = $latitude : $longitude")
+        println("WayPoint $i : longitude:latitude = $longitude:$latitude")
     }
 
     println("------------------ WayIntervals ------------------")
@@ -70,12 +68,11 @@ fun main() {
         val expectedTime = wayInterval.GetTravelTimeAsHours()
         val expectedTimeUnits = getTimeUnits(expectedTime)
         println("WayInterval $i : Distance = ${sD(distance)} km" +
-                ", Bearing = [${sD(bearing)} rad, ${sD(Math.toDegrees(bearing))} deg], "+
+                ", Bearing = [${sD(bearing)} deg, ${sD(Math.toRadians(bearing))} rad], "+
         "Expected Time to Go = ${sD(expectedTime)} h, " +
                 "${"%02d".format(expectedTimeUnits[0])}:" +
                 "${"%02d".format(expectedTimeUnits[1])}:" +
-                "%02d".format(expectedTimeUnits[2])
-        )
+                "%02d".format(expectedTimeUnits[2]))
     }
 
     println("------------------ XTD ------------------")
@@ -138,7 +135,7 @@ fun getTimeUnits(hours: Double): List<Number> {
     val seconds = ((minutes - minutes.toInt())*60)
     val secondsInt = seconds.toInt()
     val daysInt = (hours/24).toInt()
-    val monthsInt = (daysInt/30).toInt()
+    val monthsInt = daysInt/30
     return listOf(hourInt, minutesInt, secondsInt, daysInt, monthsInt)
 }
 
@@ -151,29 +148,47 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D) {
     val end = wayInterval._nvgPt2
     val bearing = wayInterval.GetBearing()
 
-    val dx = testPoint.X - start.X
-    val dy = testPoint.Y - start.Y
-    val angle = atan2(dy, dx)
+//    val dx = testPoint.X - start.X
+//    val dy = testPoint.Y - start.Y
+//    val dx = MainActivity.GeoDistanceAuto(start.Y, start.X, testPoint.Y, testPoint.X)
+//    val dy = MainActivity.GeoDistanceAuto(start.Y, start.X, testPoint.Y, testPoint.X)
+//    val angle = atan2(dy, dx)
+    val angle = MainActivity.Bearing(start.Y, start.X, testPoint.Y, testPoint.X)
 
-    val angleDiff = normalizeAngle(angle - bearing)
+    val angleDiff = normalizeAngle(bearing, angle)
 
     println("start: ${sD(start.X)}, ${sD(start.Y)}, end: ${sD(end.X)}, ${sD(end.Y)}")
     println("bearing: $bearing, angle: $angle, angleDiff: $angleDiff")
 
-    if (angleDiff < PI) {
-        println("port side")
-    } else {
-        println("starboard side")
+
+
+    when {
+        angleDiff < 0 && (wayInterval._starboardXTD < wayInterval.GetXTD(testPoint))
+        ->  println("starboard side && out of XTD")
+        angleDiff < 0 && (wayInterval._starboardXTD > wayInterval.GetXTD(testPoint))
+        ->  println("starboard side && in XTD")
+        angleDiff > 0 && (wayInterval._portsideXTD < wayInterval.GetXTD(testPoint))
+        ->  println("port side && out of XTD")
+        angleDiff > 0 && (wayInterval._portsideXTD > wayInterval.GetXTD(testPoint))
+        ->  println("port side && in XTD")
+        else -> println("error")
     }
 }
 
-fun normalizeAngle(angle: Double): Double {
-    var result = angle
-    while (result < 0) {
-        result += 2 * PI
-    }
-    while (result > 2 * PI) {
-        result -= 2 * PI
-    }
-    return result
+fun normalizeAngle(boringAngle: Double, targetAngle: Double = 0.0): Double {
+    // normalize way angle
+    var normWayAngle = boringAngle
+    while (normWayAngle > PI) normWayAngle -= 2 * PI
+    while (normWayAngle < -PI) normWayAngle += 2 * PI
+
+    // normalize target angle
+    var normTargetAngle = targetAngle
+    while (normTargetAngle > PI) normTargetAngle -= 2 * PI
+    while (normTargetAngle < -PI) normTargetAngle += 2 * PI
+
+    // calculate angle difference
+    val angleDiff = normTargetAngle - normWayAngle
+    println("normWayAngle: $normWayAngle, normTargetAngle: $normTargetAngle")
+    println("angleDiff: ${Math.toDegrees(angleDiff)}")
+    return angleDiff
 }
