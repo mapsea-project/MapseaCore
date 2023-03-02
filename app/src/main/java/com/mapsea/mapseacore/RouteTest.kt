@@ -1,5 +1,6 @@
 package com.mapsea.mapseacore
 
+import com.mapsea.mapseacore.WayInterval.SideOfWay
 import kotlin.math.PI
 import kotlin.random.Random
 
@@ -84,7 +85,11 @@ fun main() {
         println("WayInterval $i : XTD = ${sD(wayInterval.GetXTD(testPoint))} m")
     }
 
-    getSideOfWayInterval(route.GetWayInterval(0), testPoint)
+    println("------------------ SideOfWay ------------------")
+    println("PORTOUT: ${SideOfWay.PORTOUT}: -2, PORTIN: ${SideOfWay.PORTIN}: -1, " +
+            "STBDOUT: ${SideOfWay.STARBOARDOUT}: 2, STBDIN: ${SideOfWay.STARBOARDIN}: 1, " +
+            "ONROUTE: ${SideOfWay.NONE}: 0")
+    println("SideOfWay: ${getSideOfWayInterval(route.GetWayInterval(0), testPoint)}")
 
 //    val currentVessel = Vessel()
 //    currentVessel._pos = PositionData()
@@ -139,7 +144,12 @@ fun getTimeUnits(hours: Double): List<Number> {
     return listOf(hourInt, minutesInt, secondsInt, daysInt, monthsInt)
 }
 
-fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D) {
+/**
+ * @param wayInterval: WayInterval
+ * @param testPoint: Point2D
+ * @return Int of SideOfWay enum Value (0: NONE, -2: PORTOUT, -1: PORTIN, 1: STARBOARDIN, 2: STARBOARDOUT)
+ */
+fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
     val portXTD = wayInterval._portsideXTD
     val starboardXTD = wayInterval._starboardXTD
     val xtd = wayInterval.GetXTD(testPoint)
@@ -148,31 +158,39 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D) {
     val end = wayInterval._nvgPt2
     val bearing = wayInterval.GetBearing()
 
-//    val dx = testPoint.X - start.X
-//    val dy = testPoint.Y - start.Y
-//    val dx = MainActivity.GeoDistanceAuto(start.Y, start.X, testPoint.Y, testPoint.X)
-//    val dy = MainActivity.GeoDistanceAuto(start.Y, start.X, testPoint.Y, testPoint.X)
-//    val angle = atan2(dy, dx)
     val angle = MainActivity.Bearing(start.Y, start.X, testPoint.Y, testPoint.X)
 
     val angleDiff = normalizeAngle(bearing, angle)
 
     println("start: ${sD(start.X)}, ${sD(start.Y)}, end: ${sD(end.X)}, ${sD(end.Y)}")
-    println("bearing: $bearing, angle: $angle, angleDiff: $angleDiff")
+    println("bearing: ${sD(bearing)}, angle: ${sD(angle)}, angleDiff: ${sD(angleDiff)}")
 
     when {
         angleDiff < 0 && (wayInterval._starboardXTD < wayInterval.GetXTD(testPoint))
-        ->  println("starboard side && out of XTD")
+        -> {println("starboard side && out of XTD")
+            return SideOfWay.STARBOARDOUT.value
+        }
         angleDiff < 0 && (wayInterval._starboardXTD > wayInterval.GetXTD(testPoint))
-        ->  println("starboard side && in XTD")
+        -> {println("starboard side && in XTD")
+            return SideOfWay.STARBOARDIN.value
+        }
         angleDiff > 0 && (wayInterval._portsideXTD < wayInterval.GetXTD(testPoint))
-        ->  println("port side && out of XTD")
+        -> { println("port side && out of XTD")
+            return SideOfWay.PORTOUT.value
+        }
         angleDiff > 0 && (wayInterval._portsideXTD > wayInterval.GetXTD(testPoint))
-        ->  println("port side && in XTD")
-        else -> println("error")
+        -> { println("port side && in XTD")
+            return SideOfWay.PORTIN.value
+        }
+        else -> return WayInterval.SideOfWay.NONE.value
     }
 }
 
+/**
+ * @param boringAngle: Double
+ * @param targetAngle: Double
+ * @return angle difference: Double
+ */
 fun normalizeAngle(boringAngle: Double, targetAngle: Double = 0.0): Double {
     // normalize way angle
     var normWayAngle = boringAngle
@@ -185,8 +203,5 @@ fun normalizeAngle(boringAngle: Double, targetAngle: Double = 0.0): Double {
     while (normTargetAngle < -PI) normTargetAngle += 2 * PI
 
     // calculate angle difference
-    val angleDiff = normTargetAngle - normWayAngle
-    println("normWayAngle: $normWayAngle, normTargetAngle: $normTargetAngle")
-    println("angleDiff: ${Math.toDegrees(angleDiff)}")
-    return angleDiff
+    return normTargetAngle - normWayAngle
 }

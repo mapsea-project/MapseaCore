@@ -181,4 +181,18 @@ public class WayInterval {
     public double GetTravelTimeAsHours() {
         return _distance / (_speed / MSFINAL.KMTONMRATE);
     }
+
+    public enum SideOfWay {
+        PORTOUT(-2), PORTIN(-1), NONE(0), STARBOARDIN(1), STARBOARDOUT(2);
+
+        private final int value;
+
+        SideOfWay(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }
