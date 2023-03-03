@@ -75,7 +75,7 @@ fun main() {
     val speed: Double = route.GetAverageSpeed()
     val dist: Double = route.GetTotalDistance()
     val time: Double = route.GetTimeToGo() // 예상 운항 시간(h)
-    val (hours, minutes, seconds) = getTimeUnits(time)
+    val (_,_,hours, minutes, seconds) = getTimeUnits(time)
     // timeH: integer part of time
 
     println("Average Speed: ${fN(speed)} knots")
