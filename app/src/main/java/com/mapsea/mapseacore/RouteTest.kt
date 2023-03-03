@@ -23,8 +23,8 @@ fun main() {
         Point2D(139.76, 35.70), // Tokyo
         Point2D(-122.26, 38.22), // San Francisco
         Point2D(151.60, -32.95), // Sydney
-        Point2D(179.58, 33.83), // 태평양 자오선 왼쪽
-        Point2D(-178.01, 29.21),
+        Point2D(179.58, 33.83), // 태평양 IDL 왼쪽
+        Point2D(-178.01, 29.21), // 태평양 IDL 오른쪽
     )
     val route = Route()
 

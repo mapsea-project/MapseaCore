@@ -19,3 +19,48 @@ local.properties
 /.idea/*
 .idea/misc.xml
 .idea/*
+
+# Built application files
+*.apk
+*.ap_
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Gradle files
+.gradle/
+**/build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log files
+*.log
+
+# Android Studio navigation and workspace files
+.idea/
+*.iml
+
+# Keystore files
+*.jks
+*.keystore
+
+# Proguard files
+proguard*/
+
+# Kotlin-specific files
+*.kotlin_module
+
+# Built or compiled native libraries
+**/libs/
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and Webstorm
+*.ipr
+*.iws
+*.iml
+
+# Covers Visual Studio Code dev environment
+.vscode/
