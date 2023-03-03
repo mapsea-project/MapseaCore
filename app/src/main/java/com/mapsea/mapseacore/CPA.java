@@ -16,11 +16,11 @@ public class CPA {
         double brgVecX, brgVecY;
         double objVecX, objVecY;
 
-        brgVecX = proxyV2.X - v1._pos._lon;
-        brgVecY = proxyV2.Y - v1._pos._lat;
+        brgVecX = proxyV2.getX() - v1._pos._lon;
+        brgVecY = proxyV2.getY() - v1._pos._lat;
 
-        double v1MoveX = v1._pos._lon - proxyV1Prev.X;
-        double v1MoveY = v1._pos._lat - proxyV1Prev.Y;
+        double v1MoveX = v1._pos._lon - proxyV1Prev.getX();
+        double v1MoveY = v1._pos._lat - proxyV1Prev.getY();
         Duration v1MoveD = Duration.between(v1._prevPos._stp, v1._pos._stp);
         long v1MoveNS = v1MoveD.toNanos();
         double v1MoveS = (double) v1MoveNS / MSFINAL.NS2S;
@@ -28,8 +28,8 @@ public class CPA {
         v1MoveX = v1STDV * v1MoveX;
         v1MoveY = v1STDV * v1MoveY;
 
-        double v2MoveX = proxyV2.X - proxyV2Prev.X;
-        double v2MoveY = proxyV2.Y - proxyV2Prev.Y;
+        double v2MoveX = proxyV2.getX() - proxyV2Prev.getX();
+        double v2MoveY = proxyV2.getY() - proxyV2Prev.getY();
         Duration v2MoveD = Duration.between(v2._prevPos._stp, v2._pos._stp);
         long v2MoveNS = v2MoveD.toNanos();
         double v2MoveS = (double) v2MoveNS / MSFINAL.NS2S;
@@ -37,7 +37,7 @@ public class CPA {
         v2MoveX = v2STDV * v2MoveX;
         v2MoveY = v2STDV * v2MoveY;
 
-        Point2D predictedV2 = new Point2D(proxyV2.X, proxyV2.Y);
+        Point2D predictedV2 = new Point2D(proxyV2.getX(), proxyV2.getY());
 
         if(MainActivity.IsVesselMoving(v2)) {
 
@@ -46,8 +46,8 @@ public class CPA {
                 Duration v1tov2 = Duration.between(v2._pos._stp, v1._pos._stp);
                 long ns = v1tov2.toNanos();
                 double second = (double)ns / MSFINAL.NS2S;
-                predictedV2.X = proxyV2.X + v2MoveX / MSFINAL.CPASTDTI * second;
-                predictedV2.Y = proxyV2.Y + v2MoveY / MSFINAL.CPASTDTI * second;
+                predictedV2.setX(proxyV2.getX() + v2MoveX / MSFINAL.CPASTDTI * second);
+                predictedV2.setY(proxyV2.getY() + v2MoveY / MSFINAL.CPASTDTI * second);
             }
 
 
@@ -73,8 +73,8 @@ public class CPA {
                 return false;
             }
         }
-        double relativeVelocity = MainActivity.GeoDistanceKmByHaversine(predictedV2.Y, predictedV2.X
-                , predictedV2.Y + objVecY, predictedV2.X + objVecX) / MSFINAL.CPASTDTI; //1초 동안 이동한 거리 km로
+        double relativeVelocity = MainActivity.GeoDistanceKmByHaversine(predictedV2.getY(), predictedV2.getX()
+                , predictedV2.getY() + objVecY, predictedV2.getX() + objVecX) / MSFINAL.CPASTDTI; //1초 동안 이동한 거리 km로
         //해당 벡터의 노트단위 속력 구하기
 
         if(relativeVelocity == 0)
@@ -93,27 +93,27 @@ public class CPA {
 
             if(objVecX == 0.0)
             {
-                double px = predictedV2.X;
+                double px = predictedV2.getX();
                 double py = v1._pos._lat;
 
                 _cpa = MainActivity.GeoDistanceKmByHaversine(v1._pos._lat, v1._pos._lon, v1._pos._lat, px);
 
-                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.Y, predictedV2.X, py, px)
+                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.getY(), predictedV2.getX(), py, px)
                         / relativeVelocity;
             }
             else if(objVecY == 0.0)
             {
                 double px = v1._pos._lon;
-                double py = predictedV2.Y;
+                double py = predictedV2.getY();
 
                 _cpa = MainActivity.GeoDistanceKmByHaversine(v1._pos._lat, v1._pos._lon, v1._pos._lat, px);
 
-                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.Y, predictedV2.X, py, px)
+                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.getY(), predictedV2.getX(), py, px)
                         / relativeVelocity;
             }
             else {
                 double a2 = objVecY / objVecX;
-                double b2 = predictedV2.Y - a2 * predictedV2.X;
+                double b2 = predictedV2.getY() - a2 * predictedV2.getX();
 
                 double a1 = -objVecX / objVecY;
                 double b1 = v1._pos._lat - a1 * v1._pos._lon;
@@ -123,7 +123,7 @@ public class CPA {
 
                 _cpa = MainActivity.GeoDistanceKmByHaversine(v1._pos._lat, v1._pos._lon, py, px);
 
-                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.Y, predictedV2.X, py, px)
+                _tcpa = MainActivity.GeoDistanceKmByHaversine(predictedV2.getY(), predictedV2.getX(), py, px)
                         / relativeVelocity;
             }
             return true;
@@ -139,14 +139,7 @@ public class CPA {
         double theta2 = Math.atan(vec2y / vec2x);
         double thetaDiff = theta2 - theta1;
 
-        if((thetaDiff < Math.PI / 2) && (thetaDiff > -Math.PI / 2))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (thetaDiff < Math.PI / 2) && (thetaDiff > -Math.PI / 2);
     }
 
     public double GetCPA()

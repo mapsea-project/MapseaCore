@@ -40,8 +40,8 @@ public class HarborLocation {
 
         for (int i = 0; i < _harbors.size(); i++)
         {
-            double tmpDist = MainActivity.GeoDistanceAuto(location.Y, location.X
-                    , _harbors.get(i).Y, _harbors.get(i).X);
+            double tmpDist = MainActivity.GeoDistanceAuto(location.getY(), location.getX()
+                    , _harbors.get(i).getY(), _harbors.get(i).getX());
             if (tmpDist < minDist)
             {
                 minDist = tmpDist;

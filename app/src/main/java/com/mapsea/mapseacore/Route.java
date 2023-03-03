@@ -71,8 +71,8 @@ public class Route {
         int ws =_wayPoints.size();
         if(ws > 1)
         {
-            _intervals.add(new WayInterval(_wayPoints.get(ws - 2).Y, _wayPoints.get(ws - 2).X
-                    ,_wayPoints.get(ws - 1).Y, _wayPoints.get(ws - 1).X));
+            _intervals.add(new WayInterval(_wayPoints.get(ws - 2).getY(), _wayPoints.get(ws - 2).getX()
+                    ,_wayPoints.get(ws - 1).getY(), _wayPoints.get(ws - 1).getX()));
             CalculateRouteInfo();
         }
     }
@@ -93,36 +93,36 @@ public class Route {
             _wayPoints.add(pos, wayPoint);
             if(_wayPoints.size() == 2)
             {
-                _intervals.add(new WayInterval(_wayPoints.get(0).Y, _wayPoints.get(0).X
-                        ,_wayPoints.get(1).Y, _wayPoints.get(1).X));
+                _intervals.add(new WayInterval(_wayPoints.get(0).getY(), _wayPoints.get(0).getX()
+                        ,_wayPoints.get(1).getY(), _wayPoints.get(1).getX()));
             }
             else if(_wayPoints.size() > 2)
             {
                 if(pos < _intervals.size())
                 {
-                    WayInterval tmpWI = _intervals.get(pos).Clone(_wayPoints.get(pos).Y, _wayPoints.get(pos).X
-                            ,_wayPoints.get(pos + 1).Y, _wayPoints.get(pos + 1).X);
+                    WayInterval tmpWI = _intervals.get(pos).Clone(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
+                            ,_wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
 
                     _intervals.add(pos, tmpWI);
                 }
                 else
                 {
-                    WayInterval tmpWI = (new WayInterval(_wayPoints.get(_wayPoints.size() - 2).Y, _wayPoints.get(_wayPoints.size() - 2).X
-                            ,_wayPoints.get(_wayPoints.size() - 1).Y, _wayPoints.get(_wayPoints.size() - 1).X));
+                    WayInterval tmpWI = (new WayInterval(_wayPoints.get(_wayPoints.size() - 2).getY(), _wayPoints.get(_wayPoints.size() - 2).getX()
+                            ,_wayPoints.get(_wayPoints.size() - 1).getY(), _wayPoints.get(_wayPoints.size() - 1).getX()));
 
                     _intervals.add(pos - 1, tmpWI);
                 }
 
                 if(pos > 0)
                 {
-                    _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).Y, _wayPoints.get(pos - 1).X
-                            , _wayPoints.get(pos).Y, _wayPoints.get(pos).X);
+                    _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).getY(), _wayPoints.get(pos - 1).getX()
+                            , _wayPoints.get(pos).getY(), _wayPoints.get(pos).getX());
                 }
 
                 if(pos < _wayPoints.size() - 1)
                 {
-                    _intervals.get(pos).Refresh(_wayPoints.get(pos).Y, _wayPoints.get(pos).X
-                            , _wayPoints.get(pos + 1).Y, _wayPoints.get(pos + 1).X);
+                    _intervals.get(pos).Refresh(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
+                            , _wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
                 }
             }
         }
@@ -164,14 +164,14 @@ public class Route {
 
             if(pos > 0)
             {
-                _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).Y, _wayPoints.get(pos - 1).X
-                        , _wayPoints.get(pos).Y, _wayPoints.get(pos).X);
+                _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).getY(), _wayPoints.get(pos - 1).getX()
+                        , _wayPoints.get(pos).getY(), _wayPoints.get(pos).getX());
             }
 
             if(pos < _wayPoints.size() - 1)
             {
-                _intervals.get(pos).Refresh(_wayPoints.get(pos).Y, _wayPoints.get(pos).X
-                        , _wayPoints.get(pos + 1).Y, _wayPoints.get(pos + 1).X);
+                _intervals.get(pos).Refresh(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
+                        , _wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
             }
             CalculateRouteInfo();
             return true;
@@ -236,14 +236,14 @@ public class Route {
         if(_intervals.size() > 0) {
             int wiIndex = 0;
             double minDis = MainActivity.GeoDistanceAuto(
-                    location.Y, location.X, _intervals.get(0)._nvgPt1.Y, _intervals.get(0)._nvgPt1.X);
+                    location.getY(), location.getX(), _intervals.get(0)._nvgPt1.getY(), _intervals.get(0)._nvgPt1.getX());
 
             for (int i = 0; i < _intervals.size(); i++)
             {
                 double pt1Dis = MainActivity.GeoDistanceAuto(
-                        location.Y, location.X, _intervals.get(i)._nvgPt1.Y, _intervals.get(i)._nvgPt1.X);
+                        location.getY(), location.getX(), _intervals.get(i)._nvgPt1.getY(), _intervals.get(i)._nvgPt1.getX());
                 double pt2Dis = MainActivity.GeoDistanceAuto(
-                        location.Y, location.X, _intervals.get(i)._nvgPt2.Y, _intervals.get(i)._nvgPt2.X);
+                        location.getY(), location.getX(), _intervals.get(i)._nvgPt2.getY(), _intervals.get(i)._nvgPt2.getX());
                 if(pt1Dis < minDis)
                 {
                     minDis = pt1Dis;
@@ -257,9 +257,9 @@ public class Route {
 
                 if ((i == _intervals.size() - 1) && (wiIndex == i))
                 {
-                    double arvDis = MainActivity.GeoDistanceAuto(location.Y, location.X,
-                            _wayPoints.get(_wayPoints.size() - 1).Y,
-                            _wayPoints.get(_wayPoints.size() - 1).X);
+                    double arvDis = MainActivity.GeoDistanceAuto(location.getY(), location.getX(),
+                            _wayPoints.get(_wayPoints.size() - 1).getY(),
+                            _wayPoints.get(_wayPoints.size() - 1).getX());
                     
                     if(arvDis < pt2Dis)
                     {
@@ -328,7 +328,7 @@ public class Route {
         double ttlDis = 0.0;
 
         ttlDis = MainActivity.GeoDistanceKmByHaversine(latitude, longitude,
-                _wayPoints.get(wayIntervalOrder + 1).Y, _wayPoints.get(wayIntervalOrder + 1).X);
+                _wayPoints.get(wayIntervalOrder + 1).getY(), _wayPoints.get(wayIntervalOrder + 1).getX());
 
         for(int i = wayIntervalOrder + 1; i < _intervals.size(); i++)
         {
@@ -342,7 +342,7 @@ public class Route {
         double ttlTime = 0.0;
 
         ttlTime = MainActivity.GeoDistanceKmByHaversine(latitude, longitude,
-                _wayPoints.get(wayIntervalOrder + 1).Y, _wayPoints.get(wayIntervalOrder + 1).X)
+                _wayPoints.get(wayIntervalOrder + 1).getY(), _wayPoints.get(wayIntervalOrder + 1).getX())
                  / _intervals.get(wayIntervalOrder)._speed / MSFINAL.KMTONMRATE;
 
         for(int i = wayIntervalOrder + 1; i < _intervals.size(); i++)

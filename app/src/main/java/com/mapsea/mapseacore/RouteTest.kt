@@ -85,8 +85,8 @@ fun main() {
     println("------------------ WayPoints ------------------")
     // 웨이포인트 조회 반환
     for (i in 0 until route.WayPointsLength()) {
-        val latitude = route.GetWayPoint(i).Y
-        val longitude = route.GetWayPoint(i).X
+        val latitude = route.GetWayPoint(i).y
+        val longitude = route.GetWayPoint(i).x
         println("WayPoint $i : longitude:latitude = $longitude:$latitude")
     }
 
@@ -107,7 +107,7 @@ fun main() {
     }
 
     println("------------------ XTD ------------------")
-    println("Test Point: ${testPoint.X}, ${testPoint.Y}")
+    println("Test Point: ${testPoint.x}, ${testPoint.y}")
     // 경로 너비 조회
     for (i in 0 until route.WayPointsLength() - 1) {
         val wayInterval = route.GetWayInterval(i)
@@ -195,7 +195,7 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
 
     val angleDiff = calAngleDiff(bearing, angle)
 
-    println("start: ${fN(start.X)}, ${fN(start.Y)}, end: ${fN(end.X)}, ${fN(end.Y)}")
+    println("start: ${fN(start.x)}, ${fN(start.y)}, end: ${fN(end.x)}, ${fN(end.y)}")
     println("bearing: ${fN(bearing)}, angle: ${fN(angle)}, angleDiff: ${fN(angleDiff)}")
 
     when {

@@ -33,7 +33,7 @@ fun main(){
     // 웨이포인트 리스트 출력
     for (i in 0 until route.WayPointsLength()) {
         val wayPoint = route.GetWayPoint(i)
-        println("WayPoint $i: ${wayPoint.X}, ${wayPoint.Y}")
+        println("WayPoint $i: ${wayPoint.x}, ${wayPoint.y}")
     }
 
     // WayInterval(두 웨이포인트 사이의 속성) 정보 출력

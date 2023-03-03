@@ -125,9 +125,9 @@ public class WayInterval {
         // Check if the longitude difference between _nvgPt1 and _nvgPt2 exceeds 180 degrees
         if (abs(_nvgPt2.getX() - _nvgPt1.getX()) > 180) {
             if (_nvgPt2.getX() > _nvgPt1.getX()) {
-                _nvgPt1.X -= 360;
+                _nvgPt1.setX(_nvgPt1.getX() - 360);
             } else {
-                _nvgPt2.X += 360;
+                _nvgPt2.setX(_nvgPt2.getX() + 360);
             }
         }
 
