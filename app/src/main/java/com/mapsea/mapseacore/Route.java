@@ -3,6 +3,7 @@ package com.mapsea.mapseacore;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 /** (맵시 구현)배의 항로에 관련된 정보와 기능을 구현한 클래스
  *
@@ -25,6 +26,14 @@ public class Route {
         _wayPoints = new ArrayList<Point2D>();
         _intervals = new ArrayList<WayInterval>();
     }
+
+    // 리스트 형태의 여러 웨이포인트 추가
+    public void addWayPointsList(List<Point2D> coorList) {
+        for (Point2D coor : coorList) {
+            Add(coor);
+        }
+    }
+
 
     //항로 전체의 정보를 갱신함. 일반적으로 웨이포인트가 추가, 변경 되었을 때 호출함
     private void CalculateRouteInfo()
@@ -125,20 +134,24 @@ public class Route {
      *
      * @return (int)way point count
      */
-    public int WayPointsLength()
-    {
+    public int WayPointsLength(){
         return _wayPoints.size();
     }
 
+    /** 총 WayInterval 개수
+     *
+     * @return (int)way interval count
+     */
+    public int WayIntervalsLength(){
+        return _intervals.size();
+    }
+
     //웨이포인트 삭제
-    public boolean Delete(int pos)
-    {
-        if(pos < _wayPoints.size())
-        {
+    public boolean Delete(int pos){
+        if(pos < _wayPoints.size()){
             _wayPoints.remove(pos);
 
-            if(_intervals.size() > 0)
-            {
+            if(_intervals.size() > 0){
                 if(pos == _intervals.size())
                 {
                     _intervals.remove(pos - 1);
@@ -217,8 +230,8 @@ public class Route {
         return _arrivalTime;
     }
 
-    //해당 위경도 위치가 속하는 웨이포인트의 순서를 반환
-    //내비게이션 중에 항로 상의 어디에 위치에 있는지 판단함
+    // 해당 위경도 위치가 속하는 웨이포인트의 순서를 반환
+    // 내비게이션 중에 항로 상의 어디에 위치에 있는지 판단함
     public int WayIntervalOrderInRoute(Point2D location) {
         if(_intervals.size() > 0) {
             int wiIndex = 0;

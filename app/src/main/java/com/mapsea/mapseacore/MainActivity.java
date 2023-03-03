@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     //두 위경도 지점 간의 각도를 반환
-    public static double Bearing(double lat1, double lon1, double lat2, double lon2){
+    public static double Bearing1(double lat1, double lon1, double lat2, double lon2){
         double dLon = Math.toRadians(lon2 - lon1);
 
         if (IsCrossDateMeridian(lon1, lon2)) {
@@ -355,6 +355,31 @@ public class MainActivity extends AppCompatActivity {
         double bearing = Math.atan2(Math.sin(dLon) * Math.cos(Math.toRadians(lat2)),
                 Math.cos(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) - Math.sin(Math.toRadians(lat1))
                         * Math.cos(Math.toRadians(lat2)) * Math.cos(dLon));
+
+        bearing = Math.toDegrees(bearing);
+        bearing = (bearing + 360) % 360;
+        return bearing;
+    }
+
+    /** 두 위경도 지점 간의 각도를 반환
+     * @param p1 : Point2D 기준점
+     * @param p2 : Point2D 대상점
+     * @return
+     */
+    public static double Bearing2(Point2D p1, Point2D p2){ // lat1: p1.getY(), lon1: p1.getX(), lat2: p2.getY(), lon2: p2.getX()
+        double dLon = Math.toRadians(p2.getX() - p1.getX());
+
+        if (IsCrossDateMeridian(p1.getX(), p2.getX())) {
+            if (p1.getX() > 0) {
+                dLon = Math.toRadians(p2.getX() - p1.getX() - 360);
+            } else {
+                dLon = Math.toRadians(p2.getX() - p1.getX() + 360);
+            }
+        }
+
+        double bearing = Math.atan2(Math.sin(dLon) * Math.cos(Math.toRadians(p2.getY())),
+                Math.cos(Math.toRadians(p1.getY())) * Math.sin(Math.toRadians(p2.getY())) - Math.sin(Math.toRadians(p1.getY()))
+                        * Math.cos(Math.toRadians(p2.getY())) * Math.cos(dLon));
 
         bearing = Math.toDegrees(bearing);
         bearing = (bearing + 360) % 360;
