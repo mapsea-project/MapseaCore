@@ -431,13 +431,9 @@ public class MainActivity extends AppCompatActivity {
         {
             if (vesselPixel < 25.0) {
                 return VesselDisplayMode.PENTAGON;
-            }
-            else if(_sScale < 500000)
-            {
+            } else if(_sScale < 500000) {
                 return VesselDisplayMode.TRIANGLE;
-            }
-            else
-            {
+            } else {
                 return VesselDisplayMode.DOT;
             }
         }
@@ -447,8 +443,7 @@ public class MainActivity extends AppCompatActivity {
     //선박의 움직임 여부를 반환
     public static boolean IsVesselMoving(Vessel vessel)
     {
-        switch (vessel._pos._status)
-        {
+        switch (vessel._pos != null ? vessel._pos._status : 0) {
             //선박이 움직이지 않는 경우
             case 1://묘박 중
             case 2://표류 중
@@ -645,13 +640,11 @@ public class MainActivity extends AppCompatActivity {
 
                         while (stk.hasMoreTokens()) {
                             try {
-
                                 AISSentence tmpstc = null;
                                 tmpStr = stk.nextToken();
                                 char[] aisca = tmpStr.toCharArray();
 
-                                if(hasPrev)
-                                {
+                                if(hasPrev) {
                                     hasPrev = false;
                                     tmpStr = prevStr + tmpStr;
                                     prevStr = "";
@@ -660,8 +653,7 @@ public class MainActivity extends AppCompatActivity {
                                 if(aisca[0] == 'A'
                                     && aisca[1] == 'I'
                                     && aisca[2] == 'V'
-                                    && aisca[3] == 'D')
-                                {
+                                    && aisca[3] == 'D') {
                                     tmpStr = "!" + tmpStr;
                                 }
 
@@ -682,10 +674,8 @@ public class MainActivity extends AppCompatActivity {
                                         } else {
                                             msg = aismf.create(fragStc, tmpstc);
                                             //Log.i(this.getClass().getName(), msg.toString());
-
                                         }
                                     } else {
-
                                         msg = aismf.create(tmpstc);
                                     }
                                     //Log.i(this.getClass().getName(), msg.toString());

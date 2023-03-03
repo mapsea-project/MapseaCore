@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VARIABLE")
+
 package com.mapsea.mapseacore
 
 import com.mapsea.mapseacore.WayInterval.SideOfWay
@@ -42,7 +44,7 @@ fun main() {
         Point2D(55.7296, 26.4480), // 26.4480, 55.7296
         Point2D(55.2266, 25.2391), // 25.2391, 55.2266
     )
-    var coorTest = listOf<Point2D>(
+    val coorTest = listOf<Point2D>(
         Point2D(55.22660, 25.23910, ), // Center // 25.23910, 55.22660 //0
         Point2D(55.22660, 25.24423, ), // 0     // 25.24423, 55.22660 //1
         Point2D(55.23107, 25.24416, ), // 38.6  // 25.24416, 55.23107 //2
