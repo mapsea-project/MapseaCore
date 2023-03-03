@@ -199,19 +199,19 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
     println("bearing: ${fN(bearing)}, angle: ${fN(angle)}, angleDiff: ${fN(angleDiff)}")
 
     when {
-        angleDiff < 0 && (wayInterval._portsideXTD < wayInterval.GetXTD(testPoint))
+        angleDiff < 0 && (portXTD < xtd)
         -> {println("Port side && out of XTD")
             return SideOfWay.PORTOUT.value
         }
-        angleDiff < 0 && (wayInterval._portsideXTD > wayInterval.GetXTD(testPoint))
+        angleDiff < 0 && (portXTD > xtd)
         -> {println("Port side && in XTD")
             return SideOfWay.PORTIN.value
         }
-        angleDiff > 0 && (wayInterval._starboardXTD < wayInterval.GetXTD(testPoint))
+        angleDiff > 0 && (starboardXTD < xtd)
         -> { println("Starboard side && out of XTD")
             return SideOfWay.STARBOARDOUT.value
         }
-        angleDiff > 0 && (wayInterval._starboardXTD > wayInterval.GetXTD(testPoint))
+        angleDiff > 0 && (starboardXTD > xtd)
         -> { println("Starboard side && in XTD")
             return SideOfWay.STARBOARDIN.value
         }
