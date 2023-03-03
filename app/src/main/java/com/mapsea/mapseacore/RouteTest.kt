@@ -43,9 +43,9 @@ fun main() {
         Point2D(55.2266, 25.2391), // 25.2391, 55.2266
     )
     var coorTest = listOf<Point2D>(
-        Point2D(55.22660, 25.23910, ), // Center // 25.23910, 55.27660 //0
+        Point2D(55.22660, 25.23910, ), // Center // 25.23910, 55.22660 //0
         Point2D(55.22660, 25.24423, ), // 0     // 25.24423, 55.22660 //1
-        Point2D(55.23107, 25.24416, ), // 39.1  // 25.24416, 55.23107 //2
+        Point2D(55.23107, 25.24416, ), // 38.6  // 25.24416, 55.23107 //2
         Point2D(55.23107, 25.23910, ), // 90    // 25.23910, 55.23107 //3
         Point2D(55.23265, 25.23381, ), // 134   // 25.23381, 55.23265 //4
         Point2D(55.22660, 25.22000, ), // 180   // 25.22000, 55.22660 //5
@@ -54,12 +54,12 @@ fun main() {
         Point2D(55.22145, 25.23528, ), // -130  // 23.23528, 55.22145 //8
     )
     route.Add(coorTest[0]) // Center
-    route.Add(coorTest[1]) // 0
+    route.Add(coorTest[4]) //
     val testPoint = coorTest[8]
 
+    /*
     // 웨이포인트 경로 항해 테스트
     // 경로 순서 테스트(from 오만 만 to 두바이)
-    /*
     val testPoint = Point2D(55.7296, 26.4480) // 경로 중간 지점
     addWayPointsList(route, coorInterOrder)*/
 
@@ -193,7 +193,7 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
 
     val angle = MainActivity.Bearing2(start, testPoint)
 
-    val angleDiff = normalizeAngle(bearing, angle)
+    val angleDiff = calAngleDiff(bearing, angle)
 
     println("start: ${fN(start.X)}, ${fN(start.Y)}, end: ${fN(end.X)}, ${fN(end.Y)}")
     println("bearing: ${fN(bearing)}, angle: ${fN(angle)}, angleDiff: ${fN(angleDiff)}")
@@ -224,7 +224,7 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
  * @param targetAngle: Double
  * @return angle difference: Double
  */
-fun normalizeAngle(boringAngle: Double, targetAngle: Double = 0.0): Double {
+fun calAngleDiff(boringAngle: Double, targetAngle: Double = 0.0): Double {
     // normalize way angle
     var normWayAngle = Math.toRadians(boringAngle)
     while (normWayAngle > PI) normWayAngle -= 2 * PI
@@ -236,5 +236,11 @@ fun normalizeAngle(boringAngle: Double, targetAngle: Double = 0.0): Double {
     while (normTargetAngle < -PI) normTargetAngle += 2 * PI
 
     // calculate angle difference
-    return Math.toDegrees(normTargetAngle - normWayAngle)
+    var result =  Math.toDegrees(normTargetAngle - normWayAngle)
+    if (result > 180.0) {
+        result -= Math.toDegrees(2 * PI)
+    } else if (result < -180.0) {
+        result += Math.toDegrees(2 * PI)
+    }
+    return result
 }
