@@ -14,7 +14,6 @@ public class Point2D {
      * @param y the (위도)latitude coordinate
      */
     public Point2D(double x, double y)
-
     {
         this.X = x;
         this.Y = y;
@@ -26,5 +25,13 @@ public class Point2D {
 
     public double getY() {
         return Y;
+    }
+
+    public void setX(double x) {
+        this.X = x;
+    }
+
+    public void setY(double y) {
+        this.Y = y;
     }
 }

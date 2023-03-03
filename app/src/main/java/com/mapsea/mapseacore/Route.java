@@ -217,8 +217,8 @@ public class Route {
         return _arrivalTime;
     }
 
-    //해당 위경도 위치가 속하는 웨이포인트의 순서를 반환
-    //내비게이션 중에 항로 상의 어디에 위치에 있는지 판단함
+    // 해당 위경도 위치가 속하는 웨이포인트의 순서를 반환
+    // 내비게이션 중에 항로 상의 어디에 위치에 있는지 판단함
     public int WayIntervalOrderInRoute(Point2D location) {
         if(_intervals.size() > 0) {
             int wiIndex = 0;

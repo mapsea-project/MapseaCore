@@ -37,15 +37,31 @@ public class WayInterval {
     /** 항로 상의 위치 판단을 위한 2개의 기준점 */
     public Point2D _nvgPt2;
 
+    public double GetPortsideXTD() { return _portsideXTD; }
+    public double GetStarboardXTD() { return _starboardXTD; }
+    public double GetSpeed() { return _speed; }
+    public double GetTurnRadius() { return _turnRadius; }
+
+    public void SetPortsideXTD(int xtd) { _portsideXTD = xtd; }
+    public void SetStarboardXTD(int xtd) { _starboardXTD = xtd; }
+    public void SetSpeed(double speed) { _speed = speed; }
+    public void SetTurnRadius(double radius) { _turnRadius = radius; }
+
+    public Point2D GetNVGPT1() { return _nvgPt1; }
+    public Point2D GetNVGPT2() { return _nvgPt2; }
+
+    public void SetNVGPT1(Point2D pt) { _nvgPt1 = pt; }
+    public void SetNVGPT2(Point2D pt) { _nvgPt2 = pt; }
+
     //생성자
     public WayInterval(double lat1, double lon1, double lat2, double lon2)
     {
-        _portsideXTD = 50;
-        _starboardXTD = 50;
-        _speed = 20.0;
-        _turnRadius = 1.0;
+        SetPortsideXTD(1000);
+        SetStarboardXTD(1000);
+        SetSpeed(20.0);
+        SetTurnRadius(1.0);
 
-        _bearing = MainActivity.Bearing(lat1, lon1, lat2, lon2);
+        _bearing = MainActivity.Bearing1(lat1, lon1, lat2, lon2);
         _distance = MainActivity.GeoDistanceKmByHaversine(lat1, lon1, lat2, lon2);
         CalculateNVGPT(lat1, lon1, lat2, lon2);
     }
@@ -53,7 +69,7 @@ public class WayInterval {
     //지정한 위치로 WI를 갱신
     public void Refresh(double lat1, double lon1, double lat2, double lon2)
     {
-        _bearing = MainActivity.Bearing(lat1, lon1, lat2, lon2);
+        _bearing = MainActivity.Bearing1(lat1, lon1, lat2, lon2);
         _distance = MainActivity.GeoDistanceKmByHaversine(lat1, lon1, lat2, lon2);
         CalculateNVGPT(lat1, lon1, lat2, lon2);
     }
@@ -90,7 +106,7 @@ public class WayInterval {
         else {
             //tangent = (lat2 - lat1) / (lon2 - lon1);
             //yInter = tangent * (-lon1) + lat1;
-            double angle = MainActivity.Bearing(lat1, lon1, lat2, lon2);
+            double angle = MainActivity.Bearing1(lat1, lon1, lat2, lon2);
             double xCos = Math.cos(angle);
             double ySin = Math.sin(angle);
 
@@ -99,7 +115,7 @@ public class WayInterval {
         }
     }
 
-    /** XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 Km
+    /** XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 m
      *
      * @param location 현재 위치(위도, 경도)
      * @return XTD km 단위
@@ -134,24 +150,8 @@ public class WayInterval {
         );
 
         // Calculate the perpendicular distance from location to the line connecting _nvgPt1 and _nvgPt2
-        return abs(Math.asin(Math.sin(d13/6371) * Math.sin(theta13 - theta12)) * 6371);
+        return abs(Math.asin(Math.sin(d13/6371) * Math.sin(theta13 - theta12)) * 6371)*1000;
     }
-
-    public double GetPortsideXTD() { return _portsideXTD; }
-    public double GetStarboardXTD() { return _starboardXTD; }
-    public double GetSpeed() { return _speed; }
-    public double GetTurnRadius() { return _turnRadius; }
-
-    public void SetPortsideXTD(int xtd) { _portsideXTD = xtd; }
-    public void SetStarboardXTD(int xtd) { _starboardXTD = xtd; }
-    public void SetSpeed(double speed) { _speed = speed; }
-    public void SetTurnRadius(double radius) { _turnRadius = radius; }
-
-    public Point2D GetNVGPT1() { return _nvgPt1; }
-    public Point2D GetNVGPT2() { return _nvgPt2; }
-
-    public void SetNVGPT1(Point2D pt) { _nvgPt1 = pt; }
-    public void SetNVGPT2(Point2D pt) { _nvgPt2 = pt; }
 
 
 
