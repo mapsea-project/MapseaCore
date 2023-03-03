@@ -13,8 +13,7 @@ public class Point2D {
      * @param x the (경도)longitude coordinate
      * @param y the (위도)latitude coordinate
      */
-    public Point2D(double x, double y)
-    {
+    public Point2D(double x, double y){
         this.X = x;
         this.Y = y;
     }

@@ -215,7 +215,7 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
         -> { println("Starboard side && in XTD")
             return SideOfWay.STARBOARDIN.value
         }
-        else -> return WayInterval.SideOfWay.NONE.value
+        else -> return SideOfWay.NONE.value
     }
 }
 

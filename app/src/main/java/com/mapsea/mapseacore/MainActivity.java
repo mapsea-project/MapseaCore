@@ -36,13 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private VesselHash _vesselHash;
 
     /** 화면 중심 위도 36.0833 */
-    private double _sLatitude = 36.0833;//37.3166;
+    private final double _sLatitude = 36.0833;//37.3166;
 
     /** 화면 중심 경도 126.5000 */
-    private double _sLongitude = 126.5000;//126.5833;
+    private final double _sLongitude = 126.5000;//126.5833;
 
     /** 화면 전자 해도 축척 */
-    private int _sScale = 10000;
+    private final int _sScale = 10000;
 
     /** 화면 전자 해도 회전각 */
     private double _sRotation = 0;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private double _screenHeight = 1080;
 
     /** 미니맵 배율, 축척 단위와 같음 */
-    private double _minimapGeoOffset = 10000;
+    private final double _minimapGeoOffset = 10000;
 
 
     private double _tmpLon;
@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
     /** 두 위경도 지점 간의 각도를 반환
      * @param p1 : Point2D 기준점
      * @param p2 : Point2D 대상점
-     * @return
+     * @return : double 각도
      */
     public static double Bearing2(Point2D p1, Point2D p2){ // lat1: p1.getY(), lon1: p1.getX(), lat2: p2.getY(), lon2: p2.getX()
         double dLon = Math.toRadians(p2.getX() - p1.getX());
@@ -674,7 +674,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                                 if (tmpstc != null) {
-                                    AISMessage msg = null;
+                                    AISMessage msg;
                                     if (aisca[7] == '2') {
                                         if (aisca[9] == '1') {
                                             fragStc = tmpstc;
