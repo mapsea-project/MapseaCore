@@ -12,7 +12,7 @@ import kotlin.random.Random
 // 리스트 형태의 여러 웨이포인트 추가
 fun addWayPointsList(route: Route, coorList: List<Point2D>) {
     for (coor in coorList) {
-        route.Add(coor)
+        route.addWayPoint(coor)
     }
 }
 
@@ -55,8 +55,8 @@ fun main() {
         Point2D(55.21000, 25.23910, ), // -90   // 25.23910, 55.21000 //7
         Point2D(55.22145, 25.23528, ), // -130  // 23.23528, 55.22145 //8
     )
-    route.Add(coorTest[0]) // Center
-    route.Add(coorTest[4]) //
+    route.addWayPoint(coorTest[0]) // Center
+    route.addWayPoint(coorTest[4]) //
     val testPoint = coorTest[8]
 
     /*
@@ -114,7 +114,7 @@ fun main() {
     for (i in 0 until route.WayPointsLength() - 1) {
         val wayInterval = route.GetWayInterval(i)
         println("portXTD(left) ${wayInterval._portsideXTD} m, starboardXTD(right) ${wayInterval._starboardXTD} m")
-        println("WayInterval $i : XTD = ${fN(wayInterval.GetXTD(testPoint))} m")
+        println("WayInterval $i : XTD = ${fN(wayInterval.getXTD(testPoint))} m")
     }
 
     println("------------------ SideOfWay ------------------")
@@ -151,7 +151,7 @@ fun addRandomWayPoint(route: Route, num: Int = 2, seed: Int = 42): Route {
 
     for (i in 1..num) {
         // x(longitude): -180 ~ 180, y(latitude): -90 ~ 90
-        route.Add(Point2D(
+        route.addWayPoint(Point2D(
             routeRand.nextDouble(-180.0, 180.0),
             routeRand.nextDouble(-90.0, 90.0)))
     }
@@ -187,7 +187,7 @@ fun getTimeUnits(hours: Double): List<Int> {
 fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
     val portXTD = wayInterval._portsideXTD
     val starboardXTD = wayInterval._starboardXTD
-    val xtd = wayInterval.GetXTD(testPoint)
+    val xtd = wayInterval.getXTD(testPoint)
 
     val start = wayInterval._nvgPt1
     val end = wayInterval._nvgPt2

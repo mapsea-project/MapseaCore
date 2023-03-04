@@ -116,45 +116,54 @@ public class WayInterval {
     }
 
     /** XTD: Cross-track Distance, 설정한 항로 중앙과 자선과의 거리, 반환값 m
-     *
      * @param location 현재 위치(위도, 경도)
      * @return XTD km 단위
      */
     // Calculates the length of a perpendicular line from a point to a line connecting two other points
-    public double GetXTD(Point2D location) {
-        // Check if the longitude difference between _nvgPt1 and _nvgPt2 exceeds 180 degrees
-        if (abs(_nvgPt2.getX() - _nvgPt1.getX()) > 180) {
-            if (_nvgPt2.getX() > _nvgPt1.getX()) {
-                _nvgPt1.setX(_nvgPt1.getX() - 360);
-            } else {
-                _nvgPt2.setX(_nvgPt2.getX() + 360);
-            }
+    public double getXTD(Point2D location) {
+        if (isLongitudeDifferenceGreaterThan180Degrees()) {
+            adjustLongitude();
         }
 
-        // Calculate the great circle distance between _nvgPt1 and _nvgPt2
-        double d12 = MainActivity.GeoDistanceGreateCircle(_nvgPt1, _nvgPt2);
+        double distanceBetweenPoints = calculateDistanceBetweenPoints(_nvgPt1, _nvgPt2);
+        double azimuthAngle12 = calculateAzimuthAngle(_nvgPt1, _nvgPt2);
+        double distanceBetweenPointAndLocation = calculateDistanceBetweenPoints(_nvgPt1, location);
+        double azimuthAngle13 = calculateAzimuthAngle(_nvgPt1, location);
 
-        // Calculate the azimuth angle from _nvgPt1 to _nvgPt2
-        double theta12 = Math.atan2(
-                Math.sin(Math.toRadians(_nvgPt2.getX() - _nvgPt1.getX())) * Math.cos(Math.toRadians(_nvgPt2.getY())),
-                Math.cos(Math.toRadians(_nvgPt1.getY())) * Math.sin(Math.toRadians(_nvgPt2.getY())) -
-                        Math.sin(Math.toRadians(_nvgPt1.getY())) * Math.cos(Math.toRadians(_nvgPt2.getY())) * Math.cos(Math.toRadians(_nvgPt2.getX() - _nvgPt1.getX()))
-        );
-
-        // Calculate the great circle distance and azimuth angle from _nvgPt1 to location
-        double d13 = MainActivity.GeoDistanceGreateCircle(_nvgPt1, location);
-        double theta13 = Math.atan2(
-                Math.sin(Math.toRadians(location.getX() - _nvgPt1.getX())) * Math.cos(Math.toRadians(location.getY())),
-                Math.cos(Math.toRadians(_nvgPt1.getY())) * Math.sin(Math.toRadians(location.getY())) -
-                        Math.sin(Math.toRadians(_nvgPt1.getY())) * Math.cos(Math.toRadians(location.getY())) * Math.cos(Math.toRadians(location.getX() - _nvgPt1.getX()))
-        );
-
-        // Calculate the perpendicular distance from location to the line connecting _nvgPt1 and _nvgPt2
-        return abs(Math.asin(Math.sin(d13/6371) * Math.sin(theta13 - theta12)) * 6371)*1000;
+        return Math.abs(Math.asin(Math.sin(distanceBetweenPointAndLocation / EARTH_RADIUS_IN_KM)
+                * Math.sin(azimuthAngle13 - azimuthAngle12)) * EARTH_RADIUS_IN_KM * METERS_PER_KILOMETER);
     }
 
+    private boolean isLongitudeDifferenceGreaterThan180Degrees() {
+        return Math.abs(_nvgPt2.getX() - _nvgPt1.getX()) > 180;
+    }
 
+    private void adjustLongitude() {
+        if (_nvgPt2.getX() > _nvgPt1.getX()) {
+            _nvgPt1.setX(_nvgPt1.getX() - 360);
+        } else {
+            _nvgPt2.setX(_nvgPt2.getX() + 360);
+        }
+    }
 
+    private double calculateDistanceBetweenPoints(Point2D point1, Point2D point2) {
+        return MainActivity.GeoDistanceGreateCircle(point1, point2);
+    }
+
+    private double calculateAzimuthAngle(Point2D point1, Point2D point2) {
+        return Math.atan2(
+                Math.sin(Math.toRadians(point2.getX() - point1.getX()))
+                        * Math.cos(Math.toRadians(point2.getY())),
+                Math.cos(Math.toRadians(point1.getY()))
+                        * Math.sin(Math.toRadians(point2.getY()))
+                        - Math.sin(Math.toRadians(point1.getY()))
+                        * Math.cos(Math.toRadians(point2.getY()))
+                        * Math.cos(Math.toRadians(point2.getX() - point1.getX()))
+        );
+    }
+
+    private static final double EARTH_RADIUS_IN_KM = 6371.0;
+    private static final double METERS_PER_KILOMETER = 1000.0;
 
     //클론 생성자
     //현재 WI의 속성을 복사하고 지정한 새로운 위치의 WI를 생성하여 반환

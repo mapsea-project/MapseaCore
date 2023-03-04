@@ -30,30 +30,30 @@ public class Route {
      * */
     public void addWayPoints(Object coor) {
         if (coor instanceof Point2D) {
-            Add((Point2D) coor);
+            addWayPoint((Point2D) coor);
         } else if (coor instanceof List) {
             for (Object obj : (List) coor) {
                 if (obj instanceof Point2D) {
-                    Add((Point2D) obj);
+                    addWayPoint((Point2D) obj);
                 }
             }
         }
     }
 
     /** 항로의 특정 위치에 웨이포인트를 추가 */
-    public void addWayPoints(List<Point2D> coor, int pos) {
-        for (Object obj : coor) {
-            if (obj instanceof Point2D) {
-                Add((Point2D) obj, pos);
-                pos++;
+    public void addWayPoints(List<Point2D> coor, int index) {
+        for (Point2D obj : coor) {
+            if (obj != null) {
+                addWayPoint(obj, index);
+                index++;
             } else {
-                throw new IllegalArgumentException("Parameter type must be Point2D");
+                throw new IllegalArgumentException("WayPoint is null");
             }
         }
     }
 
     /** 항로의 끝에 웨이포인트를 추가 */
-    public void Add(Point2D wayPoint)
+    public void addWayPoint(Point2D wayPoint)
     {
         _wayPoints.add(wayPoint);
         int ws =_wayPoints.size();
@@ -73,10 +73,9 @@ public class Route {
         {
             double tmpDis = 0.0;
             double tmpTime = 0.0;
-            for(int i = 0; i < _intervals.size(); i++)
-            {
-                tmpDis = _intervals.get(i).GetDistance();
-                tmpTime = _intervals.get(i).GetTravelTimeAsHours();
+            for (WayInterval interval : _intervals) {
+                tmpDis = interval.GetDistance();
+                tmpTime = interval.GetTravelTimeAsHours();
             }
             _ttlDis = tmpDis;
             _timeToGo = tmpTime;
@@ -95,48 +94,68 @@ public class Route {
         }
     }
 
-    /** 특정 위치에 웨이포인트를 추가
-     * @param wayPoint
-     * @param pos 0부터 시작
-     * @return
+    /**
+     * 특정 위치에 웨이포인트를 추가
+     *
+     * @param wayPoint 추가할 웨이포인트
+     * @param index    웨이포인트 인덱스. 0부터 시작
      */
-    public boolean Add(Point2D wayPoint, int pos) {
-        if(pos > _wayPoints.size() + 1) {
-            return false;
+    public void addWayPoint(Point2D wayPoint, int index) {
+        if(index > _wayPoints.size() + 1) {
+            throw new IllegalArgumentException("WayPoint index is out of range");
         }
-        else {
-            _wayPoints.add(pos, wayPoint);
-            if(_wayPoints.size() == 2) {
-                _intervals.add(new WayInterval(_wayPoints.get(0).getY(), _wayPoints.get(0).getX()
-                        ,_wayPoints.get(1).getY(), _wayPoints.get(1).getX()));
+
+        _wayPoints.add(index, wayPoint);
+
+        if(_wayPoints.size() == 2) {
+            _intervals.add(new WayInterval(
+                    _wayPoints.get(0).getY(),
+                    _wayPoints.get(0).getX(),
+                    _wayPoints.get(1).getY(),
+                    _wayPoints.get(1).getX()));
+        }
+        else if(_wayPoints.size() > 2) {
+            if(index < _intervals.size()) {
+                WayInterval tmpWI = _intervals.get(index)
+                        .Clone(
+                                _wayPoints.get(index).getY(),
+                                _wayPoints.get(index).getX(),
+                                _wayPoints.get(index + 1).getY(),
+                                _wayPoints.get(index + 1).getX());
+
+                _intervals.add(index, tmpWI);
             }
-            else if(_wayPoints.size() > 2) {
-                if(pos < _intervals.size()) {
-                    WayInterval tmpWI = _intervals.get(pos).Clone(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
-                            ,_wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
+            else {
+                WayInterval tmpWI = (new WayInterval(
+                        _wayPoints.get(_wayPoints.size() - 2).getY(),
+                        _wayPoints.get(_wayPoints.size() - 2).getX(),
+                        _wayPoints.get(_wayPoints.size() - 1).getY(),
+                        _wayPoints.get(_wayPoints.size() - 1).getX()));
 
-                    _intervals.add(pos, tmpWI);
-                }
-                else {
-                    WayInterval tmpWI = (new WayInterval(_wayPoints.get(_wayPoints.size() - 2).getY(), _wayPoints.get(_wayPoints.size() - 2).getX()
-                            ,_wayPoints.get(_wayPoints.size() - 1).getY(), _wayPoints.get(_wayPoints.size() - 1).getX()));
-
-                    _intervals.add(pos - 1, tmpWI);
-                }
-
-                if(pos > 0) {
-                    _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).getY(), _wayPoints.get(pos - 1).getX()
-                            , _wayPoints.get(pos).getY(), _wayPoints.get(pos).getX());
-                }
-
-                if(pos < _wayPoints.size() - 1) {
-                    _intervals.get(pos).Refresh(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
-                            , _wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
-                }
+                _intervals.add(index - 1, tmpWI);
             }
+
+            refreshWayIntervals(index);
         }
         CalculateRouteInfo();
-        return true;
+    }
+
+    private void refreshWayIntervals(int index) {
+        if(index > 0) {
+            _intervals.get(index - 1).Refresh(
+                    _wayPoints.get(index - 1).getY(),
+                    _wayPoints.get(index - 1).getX(),
+                    _wayPoints.get(index).getY(),
+                    _wayPoints.get(index).getX());
+        }
+
+        if(index < _wayPoints.size() - 1) {
+            _intervals.get(index).Refresh(
+                    _wayPoints.get(index).getY(),
+                    _wayPoints.get(index).getX(),
+                    _wayPoints.get(index + 1).getY(),
+                    _wayPoints.get(index + 1).getX());
+        }
     }
 
     /** 총 웨이포인트 개수
@@ -154,30 +173,20 @@ public class Route {
     }
 
     //웨이포인트 삭제
-    public boolean Delete(int pos){
-        if(pos < _wayPoints.size()){
-            _wayPoints.remove(pos);
+    public boolean Delete(int index){
+        if(index < _wayPoints.size()){
+            _wayPoints.remove(index);
 
             if(_intervals.size() > 0){
-                if(pos == _intervals.size())
-                {
-                    _intervals.remove(pos - 1);
+                if(index == _intervals.size()) {
+                    _intervals.remove(index - 1);
                 }
-                else
-                {
-                    _intervals.remove(pos);
+                else {
+                    _intervals.remove(index);
                 }
             }
 
-            if(pos > 0) {
-                _intervals.get(pos - 1).Refresh(_wayPoints.get(pos - 1).getY(), _wayPoints.get(pos - 1).getX()
-                        , _wayPoints.get(pos).getY(), _wayPoints.get(pos).getX());
-            }
-
-            if(pos < _wayPoints.size() - 1) {
-                _intervals.get(pos).Refresh(_wayPoints.get(pos).getY(), _wayPoints.get(pos).getX()
-                        , _wayPoints.get(pos + 1).getY(), _wayPoints.get(pos + 1).getX());
-            }
+            refreshWayIntervals(index);
             CalculateRouteInfo();
             return true;
         }
@@ -187,13 +196,13 @@ public class Route {
     }
 
     //웨이포인트 조회 반환
-    public Point2D GetWayPoint(int pos){
-        return _wayPoints.get(pos);
+    public Point2D GetWayPoint(int index){
+        return _wayPoints.get(index);
     }
 
     //웨이포인트 간 속성 조회 반환
-    public WayInterval GetWayInterval(int pos) {
-        return _intervals.get(pos);
+    public WayInterval GetWayInterval(int index) {
+        return _intervals.get(index);
     }
 
     /** 평균 속력 반환(knot) */
@@ -232,26 +241,26 @@ public class Route {
         if(_intervals.size() > 0) {
             int wiIndex = 0;
             double minDis = MainActivity.GeoDistanceAuto(
-                    location.getY(), location.getX(), _intervals.get(0)._nvgPt1.getY(), _intervals.get(0)._nvgPt1.getX());
+                    location.getY(), location.getX(),
+                    _intervals.get(0)._nvgPt1.getY(), _intervals.get(0)._nvgPt1.getX());
 
             for (int i = 0; i < _intervals.size(); i++) {
                 double pt1Dis = MainActivity.GeoDistanceAuto(
-                        location.getY(), location.getX(), _intervals.get(i)._nvgPt1.getY(), _intervals.get(i)._nvgPt1.getX());
+                        location.getY(), location.getX(),
+                        _intervals.get(i)._nvgPt1.getY(), _intervals.get(i)._nvgPt1.getX());
                 double pt2Dis = MainActivity.GeoDistanceAuto(
-                        location.getY(), location.getX(), _intervals.get(i)._nvgPt2.getY(), _intervals.get(i)._nvgPt2.getX());
-                if(pt1Dis < minDis)
-                {
+                        location.getY(), location.getX(),
+                        _intervals.get(i)._nvgPt2.getY(), _intervals.get(i)._nvgPt2.getX());
+                if(pt1Dis < minDis) {
                     minDis = pt1Dis;
                     wiIndex = i;
                 }
-                if(pt2Dis < minDis)
-                {
+                if(pt2Dis < minDis) {
                     minDis = pt2Dis;
                     wiIndex = i;
                 }
 
-                if ((i == _intervals.size() - 1) && (wiIndex == i))
-                {
+                if ((i == _intervals.size() - 1) && (wiIndex == i)) {
                     double arvDis = MainActivity.GeoDistanceAuto(location.getY(), location.getX(),
                             _wayPoints.get(_wayPoints.size() - 1).getY(),
                             _wayPoints.get(_wayPoints.size() - 1).getX());
@@ -268,7 +277,7 @@ public class Route {
 
     //해당 위치의 XTD 값을 반환 반환값 단위 Km
     public double GetXTD(int wayIntervalOrder, Point2D location) {
-        return _intervals.get(wayIntervalOrder).GetXTD(location);
+        return _intervals.get(wayIntervalOrder).getXTD(location);
     }
 
     //지정 웨이포인트 도착 예정 시각
@@ -319,7 +328,7 @@ public class Route {
 
     //항로 상의 목적지까지 남은 거리, 반환값 단위 Km
     public double GetRemainedDistance(int wayIntervalOrder, double latitude, double longitude) {
-        double ttlDis = 0.0;
+        double ttlDis;
 
         ttlDis = MainActivity.GeoDistanceKmByHaversine(latitude, longitude,
                 _wayPoints.get(wayIntervalOrder + 1).getY(), _wayPoints.get(wayIntervalOrder + 1).getX());
@@ -333,7 +342,7 @@ public class Route {
 
     //항로 상의 목적지까지 남은 운항 시간, 반환값 단위 Hour
     public double GetRemainedTimeToGo(int wayIntervalOrder, double latitude, double longitude) {
-        double ttlTime = 0.0;
+        double ttlTime;
 
         ttlTime = MainActivity.GeoDistanceKmByHaversine(latitude, longitude,
                 _wayPoints.get(wayIntervalOrder + 1).getY(), _wayPoints.get(wayIntervalOrder + 1).getX())
