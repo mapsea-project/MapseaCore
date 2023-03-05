@@ -30,7 +30,6 @@ fun main(){
     route.addWayPoints(coorTest2, 1)
     */
 
-
     // 배의 평균 속력(knot), 모든 웨이포인트 간 거리(km), 예상 운항 시간(h, M:D:h:m:s) 반환
     val speed: Double = route.GetAverageSpeed()         // 배의 평균 속력(knot)
     val distanceAll: Double = route.GetTotalDistance()  // 모든 웨이포인트 간 거리(km)
@@ -38,7 +37,6 @@ fun main(){
     val timeUnits: List<Int> = getTimeUnits(time)       // 예상 운항 시간(M,D,h,m,s) 반환
     println("speed: $speed knot, distance: $distanceAll km, total time: $time h")
     printTimeUnits(timeUnits)
-
 
     // 웨이포인트 리스트 출력
     for (i in 0 until route.WayPointsLength()) {
@@ -59,6 +57,11 @@ fun main(){
 
     // ----------------- XTD 테스트 -----------------
     // XTD는 Cross Track Distance의 약자로, 선박이 웨이포인트를 따라가는데 있어서 선박의 현재 위치에서 웨이포인트 사이의 직선 거리를 말한다.
-    val testPoint = Point2D(56.7689, 26.5513) // 선박의 현재 위치
-
+    val testPoint = Point2D(57.98584, 25.20867) // 선박의 현재 위치
+    println("testPoint: x: ${testPoint.x}, y: ${testPoint.y}")
+    for (i in 0 until route.WayIntervalsLength()) {
+        val wayInterval = route.GetWayInterval(i)
+        val xtd = wayInterval.getXTD(testPoint)         // XTD 계산
+        println("XTD $i: $xtd m")
+    }
 }

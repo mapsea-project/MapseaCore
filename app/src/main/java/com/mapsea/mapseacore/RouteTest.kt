@@ -102,7 +102,7 @@ fun main() {
         val timeUnits = getTimeUnits(expectedTime) // Months, Days, Hours, Minutes, Seconds
         println("WayInterval $i : Distance = ${fN(distance)} km" +
                 ", Bearing = [${fN(bearing)} deg, ${fN(Math.toRadians(bearing))} rad], ")
-        println("Bearing2 = ${MainActivity.Bearing2(wayInterval.GetNVGPT1(), wayInterval.GetNVGPT2())}")
+        println("Bearing2 = ${MainActivity.getBearing2(wayInterval.GetNVGPT1(), wayInterval.GetNVGPT2())}")
         // expectedTime: double, timeUnits: int array Months:Days:Hours:Minutes:Seconds
         println("Expected Time to Go = ${fN(expectedTime)} h, " +
                 "${fN(timeUnits[0])}:${fN(timeUnits[1])}:${fN(timeUnits[2])}:${fN(timeUnits[3])}:${fN(timeUnits[4])}")
@@ -193,7 +193,7 @@ fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
     val end = wayInterval._nvgPt2
     val bearing = wayInterval.GetBearing()
 
-    val angle = MainActivity.Bearing2(start, testPoint)
+    val angle = MainActivity.getBearing2(start, testPoint)
 
     val angleDiff = calAngleDiff(bearing, angle)
 

@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static java.lang.Math.*;
+
 
 public class MainActivity extends AppCompatActivity {
     /** 자선 정보 */
@@ -55,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
     /** 1픽셀 당 위경도 차이, 이미지 서버에서 받아옴 */
     private double _geoPerPixel = 1.0;
-
     private double _screenWidth = 1920;
     private double _screenHeight = 1080;
 
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         //double dis2 = GeoDistance(0.0, lon1, 0.0, lon2);
         //double dis1 = Math.abs(lon2 - lon1);
         //double dis2 = 360 - dis1;
-        return Math.abs(lon2 - lon1) > 180;
+        return abs(lon2 - lon1) > 180;
     }
 
     /** 선형순환계에서 정상 동작하도록 stdLon의 경도를 기준으로 proxyLon을 일반화한 포인트 반환
@@ -263,12 +264,12 @@ public class MainActivity extends AppCompatActivity {
     //두 위경도 지점 간의 거리를 킬로미터로 변환
     public static double GeoDistanceKmByHaversine(double lat1, double lon1, double lat2, double lon2) {
         double earthRadius = 6371; // Radius of the earth in km
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // great circle distance in radians
+        double dLat = toRadians(lat2 - lat1);
+        double dLon = toRadians(lon2 - lon1);
+        double a = sin(dLat / 2) * sin(dLat / 2)
+                + cos(toRadians(lat1)) * cos(toRadians(lat2))
+                * sin(dLon / 2) * sin(dLon / 2);
+        double c = 2 * atan2(sqrt(a), sqrt(1 - a)); // great circle distance in radians
         return earthRadius * c;
     }
 
@@ -279,84 +280,37 @@ public class MainActivity extends AppCompatActivity {
      * */
     public static double GeoDistanceGreateCircle(Point2D p1, Point2D p2) {
         final double R = 6371; // Earth's radius in kilometers
-        double lat1 = Math.toRadians(p1.getY());
-        double lat2 = Math.toRadians(p2.getY());
-        double dLat = Math.toRadians(p2.getY() - p1.getY());
-        double dLon = Math.toRadians(p2.getX() - p1.getX());
+        double lat1 = toRadians(p1.getY());
+        double lat2 = toRadians(p2.getY());
+        double dLat = toRadians(p2.getY() - p1.getY());
+        double dLon = toRadians(p2.getX() - p1.getX());
 
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        double a = sin(dLat/2) * sin(dLat/2) +
+                cos(lat1) * cos(lat2) * sin(dLon/2) * sin(dLon/2);
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double c = 2 * atan2(sqrt(a), sqrt(1-a));
 
         return R * c;
     }
 
-//    public static double VincentyDistance(double lat1, double lon1, double lat2, double lon2) {
-//        final double a = 6378137; // semi-major axis of the ellipsoid in meters
-//        final double b = 6356752.314245; // semi-minor axis of the ellipsoid in meters
-//        final double f = 1 / 298.257223563; // flattening of the ellipsoid
-//        double L = Math.toRadians(lon2 - lon1);
-//        double U1 = Math.atan((1 - f) * Math.tan(Math.toRadians(lat1)));
-//        double U2 = Math.atan((1 - f) * Math.tan(Math.toRadians(lat2)));
-//        double sinU1 = Math.sin(U1);
-//        double cosU1 = Math.cos(U1);
-//        double sinU2 = Math.sin(U2);
-//        double cosU2 = Math.cos(U2);
-//        double lambda = L;
-//        double lambdaP = 2 * Math.PI;
-//        double sinLambda, cosLambda, sinSigma, cosSigma, sigma, sinAlpha, cosSqAlpha = 0, cos2SigmaM;
-//        while (Math.abs(lambda - lambdaP) > 1e-12) {
-//            sinLambda = Math.sin(lambda);
-//            cosLambda = Math.cos(lambda);
-//            sinSigma = Math.sqrt((cosU2 * sinLambda) * (cosU2 * sinLambda) +
-//                    (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda) *
-//                            (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda));
-//            if (sinSigma == 0) {
-//                return 0; // coincident points
-//            }
-//            cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
-//            sigma = Math.atan2(sinSigma, cosSigma);
-//            sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
-//            cosSqAlpha = 1 - sinAlpha * sinAlpha;
-//            cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
-//            if (Double.isNaN(cos2SigmaM)) {
-//                cos2SigmaM = 0; // equatorial line: cosSqAlpha=0 (§6)
-//            }
-//            double C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
-//            lambdaP = lambda;
-//            lambda = L + (1 - C) * f * sinAlpha *
-//                    (sigma + C * sinSigma *
-//                            (cos2SigmaM + C * cosSigma *
-//                                    (-1 + 2 * cos2SigmaM * cos2SigmaM)));
-//            }
-//        double uSq = cosSqAlpha * (a * a - b * b) / (b * b);
-//        double A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-//        double B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-//        double deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 *
-//                (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) - B / 6 * cos2SigmaM *
-//                        (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-//        double distance = b * A * (sigma - deltaSigma);
-//        return distance / 1000; // convert to kilometers
-//    }
-
     //두 위경도 지점 간의 각도를 반환
-    public static double Bearing1(double lat1, double lon1, double lat2, double lon2){
-        double dLon = Math.toRadians(lon2 - lon1);
+    public static double getBearing1(double lat1, double lon1, double lat2, double lon2){
+        double dLon = toRadians(lon2 - lon1);
 
         if (IsCrossDateMeridian(lon1, lon2)) {
             if (lon1 > 0) {
-                dLon = Math.toRadians(lon2 - lon1 - 360);
+                dLon = toRadians(lon2 - lon1 - 360);
             } else {
-                dLon = Math.toRadians(lon2 - lon1 + 360);
+                dLon = toRadians(lon2 - lon1 + 360);
             }
         }
 
-        double bearing = Math.atan2(Math.sin(dLon) * Math.cos(Math.toRadians(lat2)),
-                Math.cos(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) - Math.sin(Math.toRadians(lat1))
-                        * Math.cos(Math.toRadians(lat2)) * Math.cos(dLon));
+        double bearing = atan2(sin(dLon) * cos(toRadians(lat2)),
+                cos(toRadians(lat1)) * sin(toRadians(lat2))
+                        - sin(toRadians(lat1))
+                        * cos(toRadians(lat2)) * cos(dLon));
 
-        bearing = Math.toDegrees(bearing);
+        bearing = toDegrees(bearing);
         bearing = (bearing + 360) % 360;
         return bearing;
     }
@@ -366,39 +320,40 @@ public class MainActivity extends AppCompatActivity {
      * @param p2 : Point2D 대상점
      * @return : double 각도
      */
-    public static double Bearing2(Point2D p1, Point2D p2){ // lat1: p1.getY(), lon1: p1.getX(), lat2: p2.getY(), lon2: p2.getX()
-        double dLon = Math.toRadians(p2.getX() - p1.getX());
+    public static double getBearing2(Point2D p1, Point2D p2){ // lat1: p1.getY(), lon1: p1.getX(), lat2: p2.getY(), lon2: p2.getX()
+        double dLon = toRadians(p2.getX() - p1.getX());
 
         if (IsCrossDateMeridian(p1.getX(), p2.getX())) {
             if (p1.getX() > 0) {
-                dLon = Math.toRadians(p2.getX() - p1.getX() - 360);
+                dLon = toRadians(p2.getX() - p1.getX() - 360);
             } else {
-                dLon = Math.toRadians(p2.getX() - p1.getX() + 360);
+                dLon = toRadians(p2.getX() - p1.getX() + 360);
             }
         }
 
-        double bearing = Math.atan2(Math.sin(dLon) * Math.cos(Math.toRadians(p2.getY())),
-                Math.cos(Math.toRadians(p1.getY())) * Math.sin(Math.toRadians(p2.getY())) - Math.sin(Math.toRadians(p1.getY()))
-                        * Math.cos(Math.toRadians(p2.getY())) * Math.cos(dLon));
+        double bearing = atan2(sin(dLon) * cos(toRadians(p2.getY())),
+                cos(toRadians(p1.getY())) * sin(toRadians(p2.getY()))
+                        - sin(toRadians(p1.getY()))
+                        * cos(toRadians(p2.getY())) * cos(dLon));
 
-        bearing = Math.toDegrees(bearing);
+        bearing = toDegrees(bearing);
         bearing = (bearing + 360) % 360;
         return bearing;
     }
 
     //두 위경도 지점 간의 거리를 위경도(각도) 단위로 반환
     //날짜변경선을 횡단하지 않는 방향으로 계산
-    public static double GeoDistance(double lat1, double lon1, double lat2, double lon2)
+    public static double GeoDistance1(double lat1, double lon1, double lat2, double lon2)
     {
-        return Math.sqrt((lat2 - lat1) * (lat2 - lat1) + (lon2 - lon1) * (lon2 - lon1));
+        return sqrt((lat2 - lat1) * (lat2 - lat1) + (lon2 - lon1) * (lon2 - lon1));
     }
 
     //두 위경도 지점 간의 거리를 위경도(각도) 단위로 반환
     //날짜변경선을 횡단하는 방향으로 계산
     public static double GeoDistance2(double lat1, double lon1, double lat2, double lon2)
     {
-        double diffLon = 360.0 - Math.abs(lon2 - lon1);
-        return Math.sqrt((lat2 - lat1) * (lat2 - lat1) + diffLon * diffLon);
+        double diffLon = 360.0 - abs(lon2 - lon1);
+        return sqrt((lat2 - lat1) * (lat2 - lat1) + diffLon * diffLon);
     }
 
     //두 위경도 지점 간의 거리를 위경도(각도) 단위로 반환, 자동으로 날짜변경선 횡단 여부 판단
@@ -410,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            return GeoDistance(lat1, lon1, lat2, lon2);
+            return GeoDistance1(lat1, lon1, lat2, lon2);
         }
     }
 
