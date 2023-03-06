@@ -4,13 +4,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import com.mapsea.mapseacore.GeoUtils.Companion.*;
 
 /** (맵시 구현)배의 항로에 관련된 정보와 기능을 구현한 클래스 */
 public class Route {
 
     private final ArrayList<Point2D> _wayPoints;//웨이포인트 위경도 지점
     private final ArrayList<WayInterval> _intervals;//웨이포인트 간 운항 속성 클래스
-    private double _avgSpd = 0.0;//평균 속력 knot단위
+    private double _avgSpd = 20.0;//평균 속력 knots단위
     private double _timeToGo = 0.0;//예상 운항 시간 Hour 단위
     private double _ttlDis = 0.0;//총 거리 Km단위
     private LocalDateTime _departureTime;//출발 시각
@@ -57,8 +58,7 @@ public class Route {
     {
         _wayPoints.add(wayPoint);
         int ws =_wayPoints.size();
-        if(ws > 1)
-        {
+        if(ws > 1) {
             _intervals.add(new WayInterval(_wayPoints.get(ws - 2).getY(), _wayPoints.get(ws - 2).getX()
                     ,_wayPoints.get(ws - 1).getY(), _wayPoints.get(ws - 1).getX()));
             CalculateRouteInfo();
@@ -69,17 +69,17 @@ public class Route {
     //항로 전체의 정보를 갱신함. 일반적으로 웨이포인트가 추가, 변경 되었을 때 호출함
     private void CalculateRouteInfo()
     {
-        if(_wayPoints.size() > 1)
-        {
+        if(_wayPoints.size() > 1) {
             double tmpDis = 0.0;
             double tmpTime = 0.0;
             for (WayInterval interval : _intervals) {
                 tmpDis = interval.GetDistance();
-                tmpTime = interval.GetTravelTimeAsHours();
+//                tmpTime = interval.GetTravelTimeAsHours();
             }
             _ttlDis = tmpDis;
-            _timeToGo = tmpTime;
-            _avgSpd = tmpDis / tmpTime * MSFINAL.KMTONMRATE;
+            _timeToGo = tmpDis / _avgSpd * MSFINAL.KMTONMRATE;
+//            _timeToGo = tmpTime;
+//            _avgSpd = tmpDis / tmpTime * MSFINAL.KMTONMRATE;
 
             if(_departureTime != null)
             {
@@ -196,27 +196,38 @@ public class Route {
     }
 
     //웨이포인트 조회 반환
-    public Point2D GetWayPoint(int index){
+    public Point2D getWayPoint(int index){
         return _wayPoints.get(index);
     }
 
     //웨이포인트 간 속성 조회 반환
-    public WayInterval GetWayInterval(int index) {
+    public WayInterval getWayInterval(int index) {
         return _intervals.get(index);
     }
 
-    /** 평균 속력 반환(knot) */
-    public double GetAverageSpeed() {
+    /** 평균 속력 반환(knots) */
+    public double getAverageSpeed() {
         return _avgSpd;
     }
 
+    /** 평균 속력 설정(knots)
+     * @param speed 평균 속력(knots)
+     * @return 예상 운항 시간(h)
+     * */
+    public double setAverageSpeed(double speed) {
+        _avgSpd = speed;
+        CalculateRouteInfo();
+        System.out.println("setAverageSpeed : " + _avgSpd + " / " + _timeToGo);
+        return _timeToGo;
+    }
+
     /** 예상 운항 시간 반환(h) */
-    public double GetTimeToGo() {
+    public double getTimeToGo() {
         return _timeToGo;
     }
 
     /** 총 거리 반환(km) */
-    public double GetTotalDistance() {
+    public double getTotalDistance() {
         return _ttlDis;
     }
 
@@ -353,5 +364,67 @@ public class Route {
             ttlTime = ttlTime + _intervals.get(i).GetTravelTimeAsHours();
         }
         return ttlTime;
+    }
+
+    public int getSideOfWayInterval(WayInterval wayInterval, Point2D testPoint) {
+        double portXTD = wayInterval._portsideXTD;
+        double starboardXTD = wayInterval._starboardXTD;
+        double xtd = wayInterval.getXTD(testPoint);
+
+        Point2D start = wayInterval._nvgPt1;
+        Point2D end = wayInterval._nvgPt2;
+        double bearing = wayInterval.GetBearing();
+
+        double angle = MainActivity.getBearing2(start, testPoint);
+
+        double angleDiff = calAngleDiff(bearing, angle);
+
+        System.out.printf("start: %.5f, %.5f, end: %.5f, %.5f\n", start.getX(), start.getY(), end.getX(), end.getY());
+        System.out.printf("bearing: %.5f, angle: %.5f, angleDiff: %.5f\n", bearing, angle, angleDiff);
+
+        if (angleDiff < 0 && (portXTD < xtd)) {
+            System.out.println("Port side && out of XTD");
+            return WayInterval.SideOfWay.PORTOUT.getValue();
+        } else if (angleDiff < 0 && (portXTD > xtd)) {
+            System.out.println("Port side && in XTD");
+            return WayInterval.SideOfWay.PORTIN.getValue();
+        } else if (angleDiff > 0 && (starboardXTD < xtd)) {
+            System.out.println("Starboard side && out of XTD");
+            return WayInterval.SideOfWay.STARBOARDOUT.getValue();
+        } else if (angleDiff > 0 && (starboardXTD > xtd)) {
+            System.out.println("Starboard side && in XTD");
+            return WayInterval.SideOfWay.STARBOARDIN.getValue();
+        } else {
+            return WayInterval.SideOfWay.NONE.getValue();
+        }
+    }
+
+    public int getSideOfWayInterval(Point2D location) {
+        int _currentWayIntervalOrder = WayIntervalOrderInRoute(location);
+        if ((_currentWayIntervalOrder == -1) || (_currentWayIntervalOrder == -2)) {
+            return _currentWayIntervalOrder;
+        }
+        return getSideOfWayInterval(_intervals.get(_currentWayIntervalOrder), location);
+    }
+
+    public static double calAngleDiff(double boringAngle, double targetAngle) {
+        // normalize way angle
+        double normWayAngle = Math.toRadians(boringAngle);
+        while (normWayAngle > Math.PI) normWayAngle -= 2 * Math.PI;
+        while (normWayAngle < -Math.PI) normWayAngle += 2 * Math.PI;
+
+        // normalize target angle
+        double normTargetAngle = Math.toRadians(targetAngle);
+        while (normTargetAngle > Math.PI) normTargetAngle -= 2 * Math.PI;
+        while (normTargetAngle < -Math.PI) normTargetAngle += 2 * Math.PI;
+
+        // calculate angle difference
+        double result = Math.toDegrees(normTargetAngle - normWayAngle);
+        if (result > 180.0) {
+            result -= Math.toDegrees(2 * Math.PI);
+        } else if (result < -180.0) {
+            result += Math.toDegrees(2 * Math.PI);
+        }
+        return result;
     }
 }

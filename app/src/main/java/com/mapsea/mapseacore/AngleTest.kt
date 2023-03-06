@@ -1,5 +1,7 @@
 package com.mapsea.mapseacore
 
+import com.mapsea.mapseacore.GeoUtils.Companion.fN
+
 fun printTimeUnits(timeUnits: List<Int>) {
     println("timeUnits: ${fN(timeUnits[0])}:${fN(timeUnits[1])}:${fN(timeUnits[2])}:${fN(timeUnits[3])}:${fN(timeUnits[4])}")
 }
@@ -31,16 +33,18 @@ fun main(){
     */
 
     // 배의 평균 속력(knot), 모든 웨이포인트 간 거리(km), 예상 운항 시간(h, M:D:h:m:s) 반환
-    val speed: Double = route.GetAverageSpeed()         // 배의 평균 속력(knot)
-    val distanceAll: Double = route.GetTotalDistance()  // 모든 웨이포인트 간 거리(km)
-    val time: Double = route.GetTimeToGo()              // 예상 운항 시간(h)
+    val speed: Double = route.averageSpeed         // 배의 평균 속력(knot)
+    val distanceAll: Double = route.totalDistance  // 모든 웨이포인트 간 거리(km)
+    val time: Double = route.timeToGo              // 예상 운항 시간(h)
     val timeUnits: List<Int> = getTimeUnits(time)       // 예상 운항 시간(M,D,h,m,s) 반환
     println("speed: $speed knot, distance: $distanceAll km, total time: $time h")
     printTimeUnits(timeUnits)
 
+    route.averageSpeed = 10.0                         // 배의 평균 속력(knot) 설정
+
     // 웨이포인트 리스트 출력
     for (i in 0 until route.WayPointsLength()) {
-        val wayPoint = route.GetWayPoint(i)             // 웨이포인트 Point2D 클래스
+        val wayPoint = route.getWayPoint(i)             // 웨이포인트 Point2D 클래스
         println("WayPoint $i: ${wayPoint.x}, ${wayPoint.y}")
     }
 
@@ -49,7 +53,7 @@ fun main(){
     // Distance는 두 웨이포인트 사이의 거리로 단위는 km 이다.
     // Bearing은 두 웨이포인트 사이의 방위각으로 단위는 degree. 북쪽이 0도 (0~360)
     for (i in 0 until route.WayIntervalsLength()) {
-        val wayInterval = route.GetWayInterval(i)       // WayInterval 클래스
+        val wayInterval = route.getWayInterval(i)       // WayInterval 클래스
         val distance = wayInterval.GetDistance()        // 두 웨이포인트 사이의 거리(km)
         val bearing = wayInterval.GetBearing()          // 두 웨이포인트 사이의 방위각(degree)
         println("WayInterval $i: $distance km, $bearing degree")
@@ -60,7 +64,7 @@ fun main(){
     val testPoint = Point2D(57.98584, 25.20867) // 선박의 현재 위치
     println("testPoint: x: ${testPoint.x}, y: ${testPoint.y}")
     for (i in 0 until route.WayIntervalsLength()) {
-        val wayInterval = route.GetWayInterval(i)
+        val wayInterval = route.getWayInterval(i)
         val xtd = wayInterval.getXTD(testPoint)         // XTD 계산
         println("XTD $i: $xtd m")
     }
