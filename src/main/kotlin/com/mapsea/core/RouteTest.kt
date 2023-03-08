@@ -1,18 +1,8 @@
 /** Route plan API Test File */
 
 package com.mapsea.core
-
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
 import com.mapsea.core.RouteUtiles.Companion.fN
 import com.mapsea.core.WayInterval.SideOfWay
-=======
-import com.mapsea.mapseacore.GeoUtils.Companion.fN
-import com.mapsea.mapseacore.WayInterval.SideOfWay
-import kotlin.math.PI
-import kotlin.random.Random
-import com.mapsea.mapseacore.GeoUtils.Companion as GeoUtils1
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
-
 // longitude: x, latitude: y
 // coordinates of cities in Korea
 
@@ -52,15 +42,15 @@ fun main() {
         Point2D(55.2266, 25.2391), // 25.2391, 55.2266
     )
     val coorTest = listOf<Point2D>(
-        Point2D(55.22660, 25.23910, ), // Center // 25.23910, 55.22660 //0
-        Point2D(55.22660, 25.24423, ), // 0     // 25.24423, 55.22660 //1
-        Point2D(55.23107, 25.24416, ), // 38.6  // 25.24416, 55.23107 //2
-        Point2D(55.23107, 25.23910, ), // 90    // 25.23910, 55.23107 //3
-        Point2D(55.23265, 25.23381, ), // 134   // 25.23381, 55.23265 //4
-        Point2D(55.22660, 25.22000, ), // 180   // 25.22000, 55.22660 //5
-        Point2D(55.22141, 25.24440, ), // -42   // 25.24440, 55.22141 //6
-        Point2D(55.21000, 25.23910, ), // -90   // 25.23910, 55.21000 //7
-        Point2D(55.22145, 25.23528, ), // -130  // 23.23528, 55.22145 //8
+        Point2D(55.22660, 25.23910,), // Center // 25.23910, 55.22660 //0
+        Point2D(55.22660, 25.24423,), // 0     // 25.24423, 55.22660 //1
+        Point2D(55.23107, 25.24416,), // 38.6  // 25.24416, 55.23107 //2
+        Point2D(55.23107, 25.23910,), // 90    // 25.23910, 55.23107 //3
+        Point2D(55.23265, 25.23381,), // 134   // 25.23381, 55.23265 //4
+        Point2D(55.22660, 25.22000,), // 180   // 25.22000, 55.22660 //5
+        Point2D(55.22141, 25.24440,), // -42   // 25.24440, 55.22141 //6
+        Point2D(55.21000, 25.23910,), // -90   // 25.23910, 55.21000 //7
+        Point2D(55.22145, 25.23528,), // -130  // 23.23528, 55.22145 //8
     )
     // 1km circle test
 //    route.addWayPoint(coorTest[0]) // Center
@@ -75,11 +65,7 @@ fun main() {
     )
     // 웨이포인트 추가
     route.addWayPoints(coorList)
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     val testPoint = Point2D(57.98584, 25.20867) // 25.20867, 57.98584
-=======
-    val testPoint = Point2D(57.98584, 25.20867)
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
 
     /*
     // 웨이포인트 경로 항해 테스트
@@ -96,15 +82,9 @@ fun main() {
 //    println("WayPoint remain len: ${route.getWayPointCount()}")
 
     // 선박 평균 속력(knot), 예상 운항 시각(h), 총 거리(km) 반환
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     val speed: Double = route._averageSpeed // 평균 속력(knot)
     val dist: Double = route.getTotalDistance()
     val time: Double = route.getTimeToGo() // 예상 운항 시간(h)
-=======
-    val speed: Double = route.averageSpeed
-    val dist: Double = route.totalDistance
-    val time: Double = route.timeToGo // 예상 운항 시간(h)
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
     val (_,_,hours, minutes, seconds) = getTimeUnits(time)
     val timeUnits = getTimeUnits(time)
     // timeH: integer part of time
@@ -115,11 +95,7 @@ fun main() {
     printTimeUnits(timeUnits)
     println("------------------ WayPoints ------------------")
     // 웨이포인트 조회 반환
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     for (i in 0 until route.getWayPointCount()) {
-=======
-    for (i in 0 until route.WayPointsLength()) {
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
         val latitude = route.getWayPoint(i).y
         val longitude = route.getWayPoint(i).x
         println("WayPoint $i : longitude:latitude = $longitude:$latitude")
@@ -127,76 +103,54 @@ fun main() {
 
     println("------------------ WayIntervals ------------------")
     // 웨이포인트 간 속성 조회 반환. 인덱스는 웨이포인트 - 1. output format .4f
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     for (i in 0 until route.getWayPointCount() - 1) {
         val wayInterval = route.getWayInterval(i)
         val distance = wayInterval.getDistance()
         val bearing = wayInterval.getBearing()
         val expectedTime = wayInterval.getTravelTimeAsHours()
-=======
-    for (i in 0 until route.WayPointsLength() - 1) {
-        val wayInterval = route.getWayInterval(i)
-        val distance = wayInterval.GetDistance()
-        val bearing = wayInterval.GetBearing()
-        val expectedTime = wayInterval.GetTravelTimeAsHours()
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
         val timeUnits = getTimeUnits(expectedTime) // Months, Days, Hours, Minutes, Seconds
-        println("WayInterval $i : Distance = ${fN(distance)} km" +
-                ", Bearing = [${fN(bearing)} deg, ${fN(Math.toRadians(bearing))} rad], ")
-        println("Bearing2 = ${RouteUtiles.getBearing2(wayInterval.getNVGPT1(), wayInterval.getNVGPT2())}")
+        println(
+            "WayInterval $i : Distance = ${fN(distance)} km" +
+                    ", Bearing = [${fN(bearing)} deg, ${fN(Math.toRadians(bearing))} rad], "
+        )
+        println(
+            "Bearing2 = ${
+                RouteUtiles.getBearing2(
+                    wayInterval.getNVGPT1(),
+                    wayInterval.getNVGPT2()
+                )
+            }"
+        )
         // expectedTime: double, timeUnits: int array Months:Days:Hours:Minutes:Seconds
-        println("Expected Time to Go = ${fN(expectedTime)} h, " +
-                "${fN(timeUnits[0])}:${fN(timeUnits[1])}:${fN(timeUnits[2])}:${fN(timeUnits[3])}:${fN(timeUnits[4])}")
+        println(
+            "Expected Time to Go = ${fN(expectedTime)} h, " +
+                    "${fN(timeUnits[0])}:${fN(timeUnits[1])}:${fN(timeUnits[2])}:${fN(timeUnits[3])}:${
+                        fN(
+                            timeUnits[4]
+                        )
+                    }"
+        )
     }
 
     println("------------------ XTD ------------------") // XTD: Cross Track Distance
     println("Test Point: ${testPoint.x}, ${testPoint.y}")
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     for (i in 0 until route.getWayPointCount() - 1) {
         val wayInterval = route.getWayInterval(i)
         println("portXTD(left) ${wayInterval.getPortsideXTD()} km, starboardXTD(right) ${wayInterval.getStarboardXTD()} km")
         println("WayInterval $i : XTD = ${fN(wayInterval.getXTD(testPoint))} km")
-=======
-    // 경로 너비 조회
-    for (i in 0 until route.WayPointsLength() - 1) {
-        val wayInterval = route.getWayInterval(i)
-        println("portXTD(left) ${wayInterval._portsideXTD} m, starboardXTD(right) ${wayInterval._starboardXTD} m")
-        println("WayInterval $i : XTD = ${fN(wayInterval.getXTD(testPoint))} m")
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
     }
 
     println("------------------ SideOfWay ------------------")
-    println("${SideOfWay.PORTOUT}: -2, ${SideOfWay.PORTIN}: -1, " +
-            "${SideOfWay.STARBOARDOUT}: 2, ${SideOfWay.STARBOARDIN}: 1, " +
-            "${SideOfWay.NONE}: 0")
+    println(
+        "${SideOfWay.PORTOUT}: -2, ${SideOfWay.PORTIN}: -1, " +
+                "${SideOfWay.STARBOARDOUT}: 2, ${SideOfWay.STARBOARDIN}: 1, " +
+                "${SideOfWay.NONE}: 0"
+    )
     println("SideOfWay: ${route.getSideOfWayInterval(route.getWayInterval(0), testPoint)}")
     println("XTD auto: ${route.getSideOfWayInterval(testPoint)} ")
 
     println("------------------ Get WayInterval Order In Route by Point ------------------")
-<<<<<<< HEAD:src/main/kotlin/com/mapsea/core/RouteTest.kt
     println("WayInterval Order: ${route.wayIntervalOrderInRoute(testPoint)}")
-=======
-    println("WayInterval Order: ${route.WayIntervalOrderInRoute(testPoint)}")
-}
-
-
-
-
-fun addRandomWayPoint(route: Route, num: Int = 2, seed: Int = 42): Route {
-    val routeRand = Random(seed)
-
-    if (num < 2) {
-        throw IllegalArgumentException("WayPoint num must be greater than 2")
-    }
-
-    for (i in 1..num) {
-        // x(longitude): -180 ~ 180, y(latitude): -90 ~ 90
-        route.addWayPoint(Point2D(
-            routeRand.nextDouble(-180.0, 180.0),
-            routeRand.nextDouble(-90.0, 90.0)))
-    }
-    return route
->>>>>>> cc82f8d4393d06a1a49eb1056ede9389a7897a7b:app/src/main/java/com/mapsea/mapseacore/RouteTest.kt
 }
 
 private const val MINUTES_PER_HOUR = 60

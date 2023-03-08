@@ -37,7 +37,7 @@ fun main(){
     val speed: Double = route._averageSpeed         // 배의 평균 속력(knot)
     val distanceAll: Double = route.getTotalDistance()  // 모든 웨이포인트 간 거리(km)
     val time: Double = route.getTimeToGo()              // 예상 운항 시간(h)
-    val timeUnits: List<Int> = getTimeUnits(time)       // 예상 운항 시간(M,D,h,m,s) 반환
+    val timeUnits: List<Int> =  getTimeUnits(time)       // 예상 운항 시간(M,D,h,m,s) 반환
     println("speed: $speed knot, distance: $distanceAll km, total time: $time h")
     printTimeUnits(timeUnits)
 
