@@ -1,25 +1,22 @@
-package com.mapsea.core
+package com.route.lib
 
-import com.mapsea.core.MSFINAL.Companion.DDG
+import com.route.lib.MSFINAL.Companion.DDG
 import java.lang.Math.toRadians
 import kotlin.math.*
 
 
 /** 항로 정보를 담는 클래스
- * @param _nvgPt1 : 항로 상의 위치 판단을 위한 2개의 기준점
- * @param _nvgPt2 : 항로 상의 위치 판단을 위한 2개의 기준점
- * @param _portsideXTD : 해당 항로의 왼쪽 한계 거리(km)
- * @param _starboardXTD : 해당 항로의 오른쪽 한계 거리(km)
- * @param _speed : 운항 속력(knot)
- * @param _turnRadius : 선회율(deg/min)
- * @param _bearing : 항로가 뻗은 각도(rad)
+ * @param lat1 시작점 위도
+ * @param lon1 시작점 경도
+ * @param lat2 도착점 위도
+ * @param lon2 도착점 경도
  * */
 class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
     /** 항로가 뻗은 각도 (rad)  */
-    private var _bearing = RouteUtiles.getBearing1(lat1, lon1, lat2, lon2)
+    private var _bearing = RouteUtiles.bearing(lat1, lon1, lat2, lon2)
 
     /** 항로 간의 거리, 단위 km  */
-    private var _distance = RouteUtiles.geoDistanceGreatCircle1(lat1, lon1, lat2, lon2)
+    private var _distance = RouteUtiles.distance(lat1, lon1, lat2, lon2)
 
     /** 해당 항로의 왼쪽 한계 거리, 단위 km  */
     private var _portsideXTD = 0.0
@@ -39,34 +36,25 @@ class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
     /** 항로 상의 위치 판단을 위한 2개의 기준점  */
     private var _nvgPt2: Point2D? = null
 
-    fun getPortsideXTD(): Double { return _portsideXTD.toDouble() }
-
+    fun getPortSideXTD(): Double { return _portsideXTD.toDouble() }
     fun getStarboardXTD(): Double { return _starboardXTD.toDouble() }
-
     fun getSpeed(): Double { return _speed }
-
     fun getTurnRadius(): Double { return _turnRadius }
 
-    private fun setPortsideXTD(xtd: Double) { _portsideXTD = xtd }
-
-    private fun setStarboardXTD(xtd: Double) { _starboardXTD = xtd }
-
+    fun setPortsideXTD(xtd: Double) { _portsideXTD = xtd }
+    fun setStarboardXTD(xtd: Double) { _starboardXTD = xtd }
     fun setSpeed(speed: Double) { _speed = speed }
-
     fun setTurnRadius(radius: Double) { _turnRadius = radius }
 
-    fun getNVGPT1(): Point2D { return _nvgPt1!! }
-
-    fun getNVGPT2(): Point2D { return _nvgPt2!! }
-
+    fun getWayStart(): Point2D { return _nvgPt1!! }
+    fun getWayEnd(): Point2D { return _nvgPt2!! }
     fun setNVGPT1(pt: Point2D) { _nvgPt1 = pt}
-
     fun setNVGPT2(pt: Point2D) { _nvgPt2 = pt}
 
     //생성자
     init {
-        setPortsideXTD(1.0) // 1km
-        setStarboardXTD(1.0) // 1km
+        setPortsideXTD(2.0) // 2km
+        setStarboardXTD(2.0) // 2km
         setSpeed(20.0) // 20 knot
         setTurnRadius(1.0) // 1 degree per minute
         calculateNVGPT(lat1, lon1, lat2, lon2)
@@ -74,8 +62,8 @@ class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
 
     //지정한 위치로 WI를 갱신
     fun refresh(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
-        _bearing = RouteUtiles.getBearing1(lat1, lon1, lat2, lon2)
-        _distance = RouteUtiles.geoDistanceGreatCircle1(lat1, lon1, lat2, lon2)
+        _bearing = RouteUtiles.bearing(lat1, lon1, lat2, lon2)
+        _distance = RouteUtiles.distance(lat1, lon1, lat2, lon2)
         calculateNVGPT(lat1, lon1, lat2, lon2)
     }
 
@@ -101,7 +89,7 @@ class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
                 }
             }
             else -> {
-                val angle: Double = RouteUtiles.getBearing1(lat1, lon1, lat2, lon2)
+                val angle: Double = RouteUtiles.bearing(lat1, lon1, lat2, lon2)
                 val xCos: Double = cos(angle)
                 val ySin: Double = sin(angle)
                 _nvgPt1 = Point2D(lon1 + xCos * DDG, lat1 + ySin * DDG)
@@ -118,42 +106,42 @@ class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
     fun getXTD(location: Point2D): Double {
         if (_nvgPt1 == null || _nvgPt2 == null) {
             return 0.0
-        } else if (location.x == _nvgPt1!!.x && location.y == _nvgPt1!!.y || location.x == _nvgPt2!!.x && location.y == _nvgPt2!!.y) {
+        } else if (location.lon == _nvgPt1!!.lon && location.lat == _nvgPt1!!.lat || location.lon == _nvgPt2!!.lon && location.lat == _nvgPt2!!.lat) {
             return 0.0
         }
 
-        // Check if the longitude difference between _nvgPt1!! and _nvgPt2 exceeds 180 degrees
-        if (abs(_nvgPt2!!.x - _nvgPt1!!.x) > 180) {
-            if (_nvgPt2!!.x > _nvgPt1!!.x) {
-                _nvgPt1!!.x = _nvgPt1!!.x - 360
+        // Check if the longitude difference between _nvgPt1 and _nvgPt2 exceeds 180 degrees
+        if (abs(_nvgPt2!!.lon - _nvgPt1!!.lon) > 180) {
+            if (_nvgPt2!!.lon > _nvgPt1!!.lon) {
+                _nvgPt1!!.lon = _nvgPt1!!.lon - 360
             } else {
-                _nvgPt2!!.x = _nvgPt2!!.x + 360
+                _nvgPt2!!.lon = _nvgPt2!!.lon + 360
             }
         }
 
         // Calculate the azimuth angle from _nvgPt1 to _nvgPt2
         val theta12 = atan2(
-            sin(toRadians(_nvgPt2!!.x - _nvgPt1!!.x)) * cos(
+            sin(toRadians(_nvgPt2!!.lon - _nvgPt1!!.lon)) * cos(
                 toRadians(
-                    _nvgPt2!!.y
+                    _nvgPt2!!.lat
                 )
             ),
-            cos(toRadians(_nvgPt1!!.y)) * sin(toRadians(_nvgPt2!!.y)) -
-                    sin(toRadians(_nvgPt1!!.y)) * cos(toRadians(_nvgPt2!!.y)) * cos(
+            cos(toRadians(_nvgPt1!!.lat)) * sin(toRadians(_nvgPt2!!.lat)) -
+                    sin(toRadians(_nvgPt1!!.lat)) * cos(toRadians(_nvgPt2!!.lat)) * cos(
                 toRadians(
-                    _nvgPt2!!.x - _nvgPt1!!.x
+                    _nvgPt2!!.lon - _nvgPt1!!.lon
                 )
             )
         )
 
         // Calculate the great circle distance and azimuth angle from _nvgPt1 to location
-        val d13: Double = RouteUtiles.geoDistanceGreatCircle2(_nvgPt1!!, location)
+        val d13: Double = RouteUtiles.distance(_nvgPt1!!, location)
         val theta13 = atan2(
-            sin(toRadians(location.x - _nvgPt1!!.x)) * cos(toRadians(location.y)),
-            cos(toRadians(_nvgPt1!!.y)) * sin(toRadians(location.y)) -
-                    sin(toRadians(_nvgPt1!!.y)) * cos(toRadians(location.y)) * cos(
+            sin(toRadians(location.lon - _nvgPt1!!.lon)) * cos(toRadians(location.lat)),
+            cos(toRadians(_nvgPt1!!.lat)) * sin(toRadians(location.lat)) -
+                    sin(toRadians(_nvgPt1!!.lat)) * cos(toRadians(location.lat)) * cos(
                 toRadians(
-                    location.x - _nvgPt1!!.x
+                    location.lon - _nvgPt1!!.lon
                 )
             )
         )
@@ -190,6 +178,5 @@ class WayInterval(lat1: Double, lon1: Double, lat2: Double, lon2: Double) {
 
     enum class SideOfWay(val value: Int) {
         PORTOUT(-2), PORTIN(-1), NONE(0), STARBOARDIN(1), STARBOARDOUT(2)
-
     }
 }

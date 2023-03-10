@@ -1,4 +1,4 @@
-package com.mapsea.core
+package com.route.lib
 
 import java.time.Duration
 import java.time.LocalDateTime
@@ -34,7 +34,34 @@ class Route {
     fun setDepartureTime(time: LocalDateTime) { _departureTime = time }
     fun getDepartureTime(): LocalDateTime? { return _departureTime }
 
-    // 생성자
+    /** 모든 경로의 portsideXTD를 설정함.
+     * @param xtd portsideXTD 값
+     * */
+    fun setPortSideAll(xtd: Double) {
+        for (i in 0 until _intervals.size) {
+            _intervals[i].setPortsideXTD(xtd)
+        }
+    }
+
+    /** 모든 경로의 starboardXTD를 설정함.
+     * @param xtd starboardXTD 값
+     * */
+    fun setStarboardSideAll(xtd: Double) {
+        for (i in 0 until _intervals.size) {
+            _intervals[i].setStarboardXTD(xtd)
+        }
+    }
+
+    /** 모든 경로의 portsideXTD, starboardXTD를 설정함.
+     * @param xtd portsideXTD, starboardXTD 값
+     * */
+    fun setAllXTD(xtd: Double) {
+        for (i in 0 until _intervals.size) {
+            _intervals[i].setPortsideXTD(xtd)
+            _intervals[i].setStarboardXTD(xtd)
+        }
+    }
+
     init {
         _wayPoints = ArrayList()
         _intervals = ArrayList()
@@ -66,10 +93,10 @@ class Route {
         if (_wayPoints.size > 1) {
             _intervals.add(
                 WayInterval(
-                    _wayPoints[_wayPoints.size - 2].y,
-                    _wayPoints[_wayPoints.size - 2].x,
-                    _wayPoints[_wayPoints.size - 1].y,
-                    _wayPoints[_wayPoints.size - 1].x
+                    lat1 = _wayPoints[_wayPoints.size - 2].lat,
+                    lon1 = _wayPoints[_wayPoints.size - 2].lon,
+                    lat2 = _wayPoints[_wayPoints.size - 1].lat,
+                    lon2 = _wayPoints[_wayPoints.size - 1].lon
                 )
             )
 
@@ -77,6 +104,7 @@ class Route {
         }
     }
 
+    //항로 전체의 정보를 갱신함. 일반적으로 웨이포인트가 추가, 변경 되었을 때 호출함
     private fun addMultipleWayPoints(wayPoints: List<Point2D>, index: Int = -1) {
         if (index < -1 || index > _wayPoints.size) {
             throw IndexOutOfBoundsException("Index is out of bounds.")
@@ -91,26 +119,26 @@ class Route {
                 if (_wayPoints.size == 2) {
                     _intervals.add(
                         WayInterval(
-                            _wayPoints[0].y,
-                            _wayPoints[0].x,
-                            _wayPoints[1].y,
-                            _wayPoints[1].x
+                            _wayPoints[0].lat,
+                            _wayPoints[0].lon,
+                            _wayPoints[1].lat,
+                            _wayPoints[1].lon
                         )
                     )
                 } else if (_wayPoints.size > 2) {
                     val tmpWI = if (index >= _intervals.size) {
                         WayInterval(
-                            _wayPoints[_wayPoints.size - 2].y,
-                            _wayPoints[_wayPoints.size - 2].x,
-                            _wayPoints[_wayPoints.size - 1].y,
-                            _wayPoints[_wayPoints.size - 1].x
+                            _wayPoints[_wayPoints.size - 2].lat,
+                            _wayPoints[_wayPoints.size - 2].lon,
+                            _wayPoints[_wayPoints.size - 1].lat,
+                            _wayPoints[_wayPoints.size - 1].lon
                         )
                     } else {
                         _intervals[index + i].clone(
-                            _wayPoints[index + i].y,
-                            _wayPoints[index + i].x,
-                            _wayPoints[index + i + 1].y,
-                            _wayPoints[index + i + 1].x
+                            _wayPoints[index + i].lat,
+                            _wayPoints[index + i].lon,
+                            _wayPoints[index + i + 1].lat,
+                            _wayPoints[index + i + 1].lon
                         )
                     }
 
@@ -124,7 +152,6 @@ class Route {
     }
 
 
-    //항로 전체의 정보를 갱신함. 일반적으로 웨이포인트가 추가, 변경 되었을 때 호출함
     private fun calculateRouteInfo() {
         if (_wayPoints.size > 1) {
             var tmpDis = 0.0
@@ -136,39 +163,40 @@ class Route {
             _totalDistance = tmpDis
             _timeToGo = tmpDis / _averageSpeed * MSFINAL.KMTONMRATE
             //            _timeToGo = tmpTime;
-            //  _avgSpd = tmpDis / tmpTime * MSFINAL.KMTONMRATE;
+//            _avgSpd = tmpDis / tmpTime * MSFINAL.KMTONMRATE;
             if (_departureTime != null) {
                 _arrivalTime = _departureTime
                 val hours = _timeToGo.toLong()
                 _arrivalTime!!.plusHours(hours)
                 var fpTime = _timeToGo - hours.toDouble()
-                fpTime *= 3600.0
+                fpTime = fpTime * 3600.0
                 _arrivalTime!!.plusSeconds(fpTime.toLong())
             }
         }
     }
 
-    fun getRemainDistance(curLocation: Point2D): Double {
+    fun getRemainDistance(curLocation: Point2D?): Double {
         _remainDistance = _totalDistance
-        _remainDistance += RouteUtiles.geoDistanceAuto2(curLocation, _wayPoints[0])
+        _remainDistance += RouteUtiles.distanceAuto(curLocation!!, _wayPoints[0])
         return _remainDistance
     }
+
 
     private fun refreshWayIntervals(index: Int) {
         if (index > 0) {
             _intervals[index - 1].refresh(
-                _wayPoints[index - 1].y,
-                _wayPoints[index - 1].x,
-                _wayPoints[index].y,
-                _wayPoints[index].x
+                _wayPoints[index - 1].lat,
+                _wayPoints[index - 1].lon,
+                _wayPoints[index].lat,
+                _wayPoints[index].lon
             )
         }
         if (index < _wayPoints.size - 1) {
             _intervals[index].refresh(
-                _wayPoints[index].y,
-                _wayPoints[index].x,
-                _wayPoints[index + 1].y,
-                _wayPoints[index + 1].x
+                _wayPoints[index].lat,
+                _wayPoints[index].lon,
+                _wayPoints[index + 1].lat,
+                _wayPoints[index + 1].lon
             )
         }
     }
@@ -190,12 +218,12 @@ class Route {
 
     /** 현재 배 위치에서 첫 웨이포인트까지의 남은 거리 반환(km)  */
     fun distanceToFirstWayPoint(currentLocation: Point2D): Double {
-        return RouteUtiles.geoDistanceGreatCircle2(currentLocation, _wayPoints[0])
+        return RouteUtiles.distance(currentLocation, _wayPoints[0])
     }
 
     /** 현재 배 위치에서 첫 웨이포인트까지의 방위각 반환(°, degree)  */
     fun bearingToFirstWayPoint(currentLocation: Point2D): Double {
-        return RouteUtiles.getBearing2(currentLocation, _wayPoints[0])
+        return RouteUtiles.bearing(currentLocation, _wayPoints[0])
     }
 
     /** 해당 위경도 위치가 속하는 웨이포인트의 순서를 반환<br>
@@ -203,18 +231,18 @@ class Route {
     fun wayIntervalOrderInRoute(location: Point2D): Int {
         if (_intervals.size > 0) {
             var wiIndex = 0
-            var minDis: Double = RouteUtiles.geoDistanceAuto1(
-                location.y, location.x,
-                _intervals[0].getNVGPT1().y, _intervals[0].getNVGPT1().x
+            var minDis: Double = RouteUtiles.distanceAuto(
+                location.lat, location.lon,
+                _intervals[0].getWayStart().lat, _intervals[0].getWayStart().lon
             )
             for (i in _intervals.indices) {
-                val pt1Dis: Double = RouteUtiles.geoDistanceAuto1(
-                    location.y, location.x,
-                    _intervals[i].getNVGPT1().y, _intervals[i].getNVGPT1().x
+                val pt1Dis: Double = RouteUtiles.distanceAuto(
+                    location.lat, location.lon,
+                    _intervals[i].getWayStart().lat, _intervals[i].getWayStart().lon
                 )
-                val pt2Dis: Double = RouteUtiles.geoDistanceAuto1(
-                    location.y, location.x,
-                    _intervals[i].getNVGPT2().y, _intervals[i].getNVGPT2().x
+                val pt2Dis: Double = RouteUtiles.distanceAuto(
+                    location.lat, location.lon,
+                    _intervals[i].getWayEnd().lat, _intervals[i].getWayEnd().lon
                 )
                 if (pt1Dis < minDis) {
                     minDis = pt1Dis
@@ -225,10 +253,10 @@ class Route {
                     wiIndex = i
                 }
                 if (i == _intervals.size - 1 && wiIndex == i) {
-                    val arvDis: Double = RouteUtiles.geoDistanceAuto1(
-                        location.y, location.x,
-                        _wayPoints[_wayPoints.size - 1].y,
-                        _wayPoints[_wayPoints.size - 1].x
+                    val arvDis: Double = RouteUtiles.distanceAuto(
+                        location.lat, location.lon,
+                        _wayPoints[_wayPoints.size - 1].lat,
+                        _wayPoints[_wayPoints.size - 1].lon
                     )
                     if (arvDis < MSFINAL.NAVIGATION_ARRIVAL_DISTANCE) {
                         return -2 //목적지 도착 내비게이션 종료
@@ -289,9 +317,9 @@ class Route {
 
     //항로 상의 목적지까지 남은 거리, 반환값 단위 Km
     fun getRemainedDistance(wayIntervalOrder: Int, latitude: Double, longitude: Double): Double {
-        var ttlDis: Double = RouteUtiles.geoDistanceGreatCircle1(
+        var ttlDis: Double = RouteUtiles.distance(
             latitude, longitude,
-            _wayPoints[wayIntervalOrder + 1].y, _wayPoints[wayIntervalOrder + 1].x
+            _wayPoints[wayIntervalOrder + 1].lat, _wayPoints[wayIntervalOrder + 1].lon
         )
         for (i in wayIntervalOrder + 1 until _intervals.size) {
             ttlDis += _intervals[i].getDistance()
@@ -301,9 +329,9 @@ class Route {
 
     //항로 상의 목적지까지 남은 운항 시간, 반환값 단위 Hour
     fun getRemainedTimeToGo(wayIntervalOrder: Int, latitude: Double, longitude: Double): Double {
-        var ttlTime: Double = (RouteUtiles.geoDistanceGreatCircle1(
+        var ttlTime: Double = (RouteUtiles.distance(
             latitude, longitude,
-            _wayPoints[wayIntervalOrder + 1].y, _wayPoints[wayIntervalOrder + 1].x
+            _wayPoints[wayIntervalOrder + 1].lat, _wayPoints[wayIntervalOrder + 1].lon
         )
                 / _intervals[wayIntervalOrder].getSpeed() / MSFINAL.KMTONMRATE)
         for (i in wayIntervalOrder + 1 until _intervals.size) {
@@ -313,34 +341,34 @@ class Route {
     }
 
     fun getSideOfWayInterval(wayInterval: WayInterval, testPoint: Point2D): Int {
-        val portXTD = wayInterval.getPortsideXTD().toDouble()
-        val starboardXTD = wayInterval.getStarboardXTD().toDouble()
+        val portXTD = wayInterval.getPortSideXTD()
+        val starboardXTD = wayInterval.getStarboardXTD()
         val xtd = wayInterval.getXTD(testPoint)
-        val start = wayInterval.getNVGPT1()
+        val start = wayInterval.getWayStart()
         val bearing = wayInterval.getBearing()
-        val angle: Double = RouteUtiles.getBearing2(p1 = start, p2 = testPoint)
+        val angle: Double = RouteUtiles.bearing(p1 = start, p2 = testPoint)
         val angleDiff = calAngleDiff(boringAngle = bearing, targetAngle = angle)
 //        println("start: %.5f, %.5f, end: %.5f, %.5f\n", start!!.x, start.y, end!!.x, end.y)
 //        println("bearing: %.5f, angle: %.5f, angleDiff: %.5f\n", bearing, angle, angleDiff)
-        return when {
+        when {
             (angleDiff < 0) && (portXTD < xtd) -> {
                 println("Port side && out of XTD")
-                WayInterval.SideOfWay.PORTOUT.value
+                return WayInterval.SideOfWay.PORTOUT.value
             }
             (angleDiff < 0) && (portXTD > xtd) -> {
                 println("Port side && in XTD")
-                WayInterval.SideOfWay.PORTIN.value
+                return WayInterval.SideOfWay.PORTIN.value
             }
             (angleDiff > 0) && (starboardXTD < xtd) -> {
                 println("Starboard side && out of XTD")
-                WayInterval.SideOfWay.STARBOARDOUT.value
+                return WayInterval.SideOfWay.STARBOARDOUT.value
             }
             (angleDiff > 0) && (starboardXTD > xtd) -> {
                 println("Starboard side && in XTD")
-                WayInterval.SideOfWay.STARBOARDIN.value
+                return WayInterval.SideOfWay.STARBOARDIN.value
             }
             else -> {
-                WayInterval.SideOfWay.NONE.value
+                return WayInterval.SideOfWay.NONE.value
             }
         }
     }
@@ -387,7 +415,7 @@ class Route {
                 )
             )
             val size = _wayPoints.size
-            println("WayPoint " + (size - 1) + ": " + _wayPoints[size - 1].x + ", " + _wayPoints[size - 1].y)
+            println("WayPoint " + (size - 1) + ": " + _wayPoints[size - 1].lon + ", " + _wayPoints[size - 1].lat)
         }
     }
 }

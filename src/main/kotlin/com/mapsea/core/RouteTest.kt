@@ -1,8 +1,9 @@
 /** Route plan API Test File */
 
-package com.mapsea.core
-import com.mapsea.core.RouteUtiles.Companion.fN
-import com.mapsea.core.WayInterval.SideOfWay
+package com.route.lib
+
+import com.route.lib.RouteUtiles.Companion.fN
+import com.route.lib.WayInterval.SideOfWay
 // longitude: x, latitude: y
 // coordinates of cities in Korea
 
@@ -96,8 +97,8 @@ fun main() {
     println("------------------ WayPoints ------------------")
     // 웨이포인트 조회 반환
     for (i in 0 until route.getWayPointCount()) {
-        val latitude = route.getWayPoint(i).y
-        val longitude = route.getWayPoint(i).x
+        val latitude = route.getWayPoint(i).lat
+        val longitude = route.getWayPoint(i).lon
         println("WayPoint $i : longitude:latitude = $longitude:$latitude")
     }
 
@@ -115,9 +116,9 @@ fun main() {
         )
         println(
             "Bearing2 = ${
-                RouteUtiles.getBearing2(
-                    wayInterval.getNVGPT1(),
-                    wayInterval.getNVGPT2()
+                RouteUtiles.bearing(
+                    wayInterval.getWayStart(),
+                    wayInterval.getWayEnd()
                 )
             }"
         )
@@ -133,10 +134,10 @@ fun main() {
     }
 
     println("------------------ XTD ------------------") // XTD: Cross Track Distance
-    println("Test Point: ${testPoint.x}, ${testPoint.y}")
+    println("Test Point: ${testPoint.lon}, ${testPoint.lat}")
     for (i in 0 until route.getWayPointCount() - 1) {
         val wayInterval = route.getWayInterval(i)
-        println("portXTD(left) ${wayInterval.getPortsideXTD()} km, starboardXTD(right) ${wayInterval.getStarboardXTD()} km")
+        println("portXTD(left) ${wayInterval.getPortSideXTD()} km, starboardXTD(right) ${wayInterval.getStarboardXTD()} km")
         println("WayInterval $i : XTD = ${fN(wayInterval.getXTD(testPoint))} km")
     }
 

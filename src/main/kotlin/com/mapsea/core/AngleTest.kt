@@ -1,7 +1,7 @@
 /** Route plan API Test File */
-package com.mapsea.core
+package com.route.lib
 
-import com.mapsea.core.RouteUtiles.Companion.fN
+import com.route.lib.RouteUtiles.Companion.fN
 
 fun printTimeUnits(timeUnits: List<Int>) {
     println("timeUnits: ${fN(timeUnits[0])}:${fN(timeUnits[1])}:${fN(timeUnits[2])}:${fN(timeUnits[3])}:${fN(timeUnits[4])}")
@@ -45,11 +45,11 @@ fun main(){
     // 웨이포인트 리스트 출력
     for (i in 0 until route.getWayPointCount()) {
         val wayPoint = route.getWayPoint(i)             // 웨이포인트 Point2D 클래스
-        println("WayPoint $i: ${wayPoint.x}, ${wayPoint.y}")
+        println("WayPoint $i: ${wayPoint.lon}, ${wayPoint.lat}")
     }
 
     val wayPointTest = route.getWayPoint(0) // 첫 번째 웨이포인트 Point2D 클래스
-    println("WayPoint 0 - LAT: ${wayPointTest.y}, LON: ${wayPointTest.x}") // y는 latitude, x는 longitude
+    println("WayPoint 0 - LAT: ${wayPointTest.lat}, LON: ${wayPointTest.lon}") // y는 latitude, x는 longitude
 
     route._averageSpeed = 10.0                         // 배의 평균 속력(knot) 설정
 
@@ -79,7 +79,7 @@ fun main(){
     // ----------------- XTD 테스트 -----------------
     // XTD는 Cross Track Distance의 약자로, 선박이 웨이포인트를 따라가는데 있어서 선박의 현재 위치에서 웨이포인트 사이의 직선 거리를 말한다.
     val testPoint = Point2D(57.98584, 25.20867) // 선박의 현재 위치
-    println("testPoint: x: ${testPoint.x}, y: ${testPoint.y}")
+    println("testPoint: x: ${testPoint.lon}, y: ${testPoint.lat}")
     for (i in 0 until route.getWayIntervalCount()) {
         val wayInterval2 = route.getWayInterval(i)
         val xtd = wayInterval2.getXTD(testPoint)         // XTD 계산

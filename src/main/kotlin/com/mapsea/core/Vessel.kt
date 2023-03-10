@@ -1,4 +1,4 @@
-package com.mapsea.core
+package com.route.lib
 
 /** 선박 데이터<br></br>
  * args:<br></br>
